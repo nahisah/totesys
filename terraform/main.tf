@@ -12,18 +12,19 @@ terraform {
     key = "project/terraform.tfstate"
     region = "eu-west-2"
     
+    
   }
   
 }
 provider "aws" {
-  region = "eu-west-2"
+  region = var.region_name
   default_tags {
     tags = {
 
-      ProjectName = "S3 totsys project"
+      ProjectName = "S3 totesys project"
       Team = "Data Engineering"
       DeployedFrom = "Terraform"
-      Repository = "totsys"
+      Repository = "totesys"
       Environment = "dev"
     
     }
