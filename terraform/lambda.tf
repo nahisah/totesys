@@ -1,20 +1,24 @@
-# resource "aws_lambda_function" "ingestion_lambda" {
+resource "aws_lambda_function" "ingestion_lambda" {
 
-#     function_name = "ingestion_lambda"
-#     s3_bucket = "code-bucket20250528124923274800000001"
-#     s3_key =  "ingestion_lambda/function.zip"
+    function_name = "ingestion_lambda"
+    filename = data.archive_file.ingestion_zip.output_path ## reference to zipped ingestion lambda
    
-#     role = aws_iam_role.ingestion_lambda_role.arn
-#     handler = "lambda_handler" 
-#     runtime = "python3.9"
+    role = aws_iam_role.ingestion_lambda_role.arn
+    handler = "test_lambda_handler.lambda_handler"
+    runtime = "python3.9"
 
-# }
+    environment {
+        variables = {
+            BUCKET_NAME = aws_s3_bucket.ingestion-bucket.bucket ##referenced as os.environ["BUCKET_NAME"] in python
+        }
+    }
+}
 
-# data "archive_file" "lambda" {
-#   type        = "zip"
-#   source_file = "${path.module}/../src/file_reader/reader.py"
-#   output_path = "${path.module}/../function.zip"
-# }
+data "archive_file" "ingestion_zip" { ## Zipping ingestion lambda function
+  type        = "zip"
+  source_file = "${path.module}/../terraform/terraform_test/test_lambda_handler.py" ##local file path to be zipped
+  output_path = "${path.module}/../terraform/terraform_test/ingestion_function.zip" ## where zipped function will be stored
+}
 
-## TO REIMPLEMENT WHEN LAMBDA FUNCTION IS AVAILABLE, PERMISSIONS ALREADY SET UP FOR INGESTION LAMBDA
+
 
