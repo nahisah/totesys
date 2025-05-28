@@ -1,4 +1,4 @@
-resource "aws_iam_role" "lambda_role" {
+resource "aws_iam_role" "ingestion_lambda_role" {
     name = "lambda_role"
     assume_role_policy = <<EOF
     {
@@ -20,25 +20,30 @@ resource "aws_iam_role" "lambda_role" {
     EOF
 }
   
-data "aws_iam_policy_document" "s3_document" {
+data "aws_iam_policy_document" "ingestion_s3_document" {
   statement {
 
-    actions = ["s3:GetObject"]
+    actions = ["s3:PutObject"]
 
     resources = [
-      "${aws_s3_bucket.ingestion-bucket.arn}/*",
-      "${aws_s3_bucket.processed-bucket.arn}/*",
+      "${aws_s3_bucket.ingestion-bucket.arn}/*"
+        
     ]
+  }
+  statement {
+    actions = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.code-bucket.arn}/*" #permission to read code from code bucket
+  ]
   }
 }
 
-resource "aws_iam_policy" "s3_policy" {
-    name = "s3_policy_lambda_role"
-    policy = data.aws_iam_policy_document.s3_document.json
+resource "aws_iam_policy" "ingestion_s3_policy" {
+    name = "ingestion_s3_policy_lambda_role"
+    policy = data.aws_iam_policy_document.ingestion_s3_document.json
   
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attachment" {
-    role = aws_iam_role.lambda_role.name
-    policy_arn = aws_iam_policy.s3_policy.arn
+resource "aws_iam_role_policy_attachment" "ingestion_lambda_s3_policy_attachment" {
+    role = aws_iam_role.ingestion_lambda_role.name
+    policy_arn = aws_iam_policy.ingestion_s3_policy.arn
 }
