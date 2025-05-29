@@ -41,7 +41,9 @@ jobs:
           PGPASSWORD: postgres
 
       - name: Query databse
-        run: psql -c 'SELECT * FROM sales_order;'
+        run: psql -p 5432 -h postgres -U postgres -c 'SELECT * FROM sales_order;'
+        env: 
+          PGPASSWORD: postgres
 
       - name: Set up Python
         uses: actions/setup-python@v5
