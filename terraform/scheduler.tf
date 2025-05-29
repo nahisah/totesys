@@ -12,8 +12,8 @@ arn = aws_lambda_function.ingestion_lambda.arn
   
 #allocating permission to scheduler/eventbridge to invoke ingestion_lambda function
 
-resource "aws_lambda_permission" "allow_eventbridge" {
-    statement_id = "AllowExecutionFromEventBridge"
-    action = "lambda:InvokeFunction"
+# resource "aws_lambda_permission" "allow_eventbridge" {
+#     statement_id = "AllowExecutionFromEventBridge"
+#     action = "lambda:InvokeFunction"
   
-}
+# }
