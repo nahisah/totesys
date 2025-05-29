@@ -1,5 +1,5 @@
 name: Build documentation
-
+run-name: Building documentation :page_facing_up:
 #
 # on:
 #   push:
