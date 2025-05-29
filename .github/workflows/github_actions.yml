@@ -2,13 +2,45 @@ name: Totesys Test and Deploy
 run-name: ${{ github.actor }} has triggered testing on push 🚀
 on: [push]
 jobs:
-  run-tests:
+  postgres-run-tests:
     runs-on: ubuntu-latest
     environment: dev
+    container: node:latest
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:latest
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        ports:
+        - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
+      # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
         uses: actions/checkout@v4
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+
+      - name: Install PostgreSQL client
+        run: |
+          apt-get update
+          apt-get install --yes postgresql-client
+
+      - name: Setup database
+        run: psql -f data/seed_mock_db.sql 
+
+      - name: Query databse
+        run: psql -c 'SELECT * FROM sales_order;'
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -21,7 +53,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: dev
-    needs: run-tests
+    needs: postgres-run-tests
 
     defaults:
       run:
