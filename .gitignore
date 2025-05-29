@@ -1,5 +1,7 @@
-.env
-venv
-*pycache*
-.coverage
+venv/
 docs/
+*pycache*
+
+.terraform*
+.env
+.coverage
