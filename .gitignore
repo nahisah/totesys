@@ -1,3 +1,7 @@
-venv
-.env
+venv/
+docs/
+*pycache*
+
 .terraform*
+.env
+.coverage
