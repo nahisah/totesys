@@ -1,10 +1,11 @@
 name: Build documentation
 
+#
 # on:
 #   push:
 #     branches:
 #       - main
-on: [push]
+on: [push] 
 
 permissions:
   contents: read
