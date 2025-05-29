@@ -34,9 +34,11 @@ jobs:
         run: |
           apt-get update
           apt-get install --yes postgresql-client
-
+  
       - name: Setup database
         run: psql -f data/seed_mock_db.sql -p 5432 -h postgres -U postgres
+        env: 
+          POSTGRES_PASSWORD: postgres
 
       - name: Query databse
         run: psql -c 'SELECT * FROM sales_order;'
