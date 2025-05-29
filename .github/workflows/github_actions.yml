@@ -14,7 +14,7 @@ jobs:
         image: postgres:latest
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: postgres
+          PGPASSWORD: postgres
         # Set health checks to wait until postgres has started
         ports:
         - 5432:5432
@@ -38,7 +38,7 @@ jobs:
       - name: Setup database
         run: psql -f data/seed_mock_db.sql -p 5432 -h postgres -U postgres
         env: 
-          POSTGRES_PASSWORD: postgres
+          PGPASSWORD: postgres
 
       - name: Query databse
         run: psql -c 'SELECT * FROM sales_order;'
