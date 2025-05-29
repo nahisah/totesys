@@ -40,7 +40,7 @@ jobs:
           PGPASSWORD: postgres
 
       - name: Query databse
-        run: psql -p 5432 -h postgres -U postgres -d mock_totesys -c 'SELECT * FROM sales_order;'
+        run: psql -p 5432 -h localhost -U postgres -d mock_totesys -c 'SELECT * FROM sales_order;'
         env: 
           PGPASSWORD: postgres
 
