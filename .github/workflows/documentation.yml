@@ -1,5 +1,5 @@
 name: Build documentation
-run-name: Building documentation :page_facing_up:
+run-name: Build and deploy documentation to GitHub Pages
 #
 # on:
 #   push:
