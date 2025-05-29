@@ -1,11 +1,10 @@
 name: Build documentation
 run-name: Build and deploy documentation to GitHub Pages
-#
-# on:
-#   push:
-#     branches:
-#       - main
-on: [push] 
+
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read

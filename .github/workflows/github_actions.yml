@@ -1,5 +1,5 @@
-name: Totesys Workflow
-run-name: ${{ github.actor }} has triggered workflow on push 🚀
+name: Totesys Test and Deploy
+run-name: ${{ github.actor }} has triggered testing on push 🚀
 on: [push]
 jobs:
   run-tests:
