@@ -3,18 +3,15 @@ run-name: ${{ github.actor }} has triggered testing on push 🚀
 on: [push]
 jobs:
   postgres-run-tests:
+
     runs-on: ubuntu-latest
     environment: dev
-    # Service containers to run with `container-job`
+    
     services:
-      # Label used to access the service container
       postgres:
-        # Docker Hub image
         image: postgres:latest
-        # Provide the password for postgres
         env:
           POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
         ports:
         - 5432:5432
         options: >-
@@ -24,7 +21,7 @@ jobs:
           --health-retries 5
 
     steps:
-      # Downloads a copy of the code in your repository before running CI tests
+
       - name: Check out repository code
         uses: actions/checkout@v4
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
@@ -39,20 +36,17 @@ jobs:
         env: 
           PGPASSWORD: postgres
 
-      - name: Query databse
-        run: psql -p 5432 -h localhost -U postgres -d mock_totesys -c 'SELECT * FROM sales_order;'
-        env: 
-          PGPASSWORD: postgres
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Run makefile
         run: make run-all
       - run: echo "🍏 This job's status is ${{ job.status }}."
   
   terraform:
+
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: dev
