@@ -14,7 +14,7 @@ jobs:
         image: postgres:latest
         # Provide the password for postgres
         env:
-          PGPASSWORD: postgres
+          POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
         ports:
         - 5432:5432
