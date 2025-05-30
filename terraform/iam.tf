@@ -35,6 +35,13 @@ data "aws_iam_policy_document" "ingestion_s3_document" { ## Set permissions for 
     resources = ["${aws_s3_bucket.code-bucket.arn}/*" ## permission to read code from code bucket
     ]
   }
+
+  statement {
+
+    # "Effect":= "Allow",
+    actions   = ["secretsmanager:GetSecretValue"]
+    resources = ["arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"]
+  }
 }
 
 data "aws_iam_policy_document" "ingestion_cw_document" {
