@@ -84,7 +84,7 @@ def test_correct_upload(mock_client):
     expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     # act
-    upload_to_s3(input_json, bucket_name, table_name)
+    upload_response = upload_to_s3(input_json, bucket_name, table_name)
 
     # assert
     response = mock_client.list_objects(Bucket=bucket_name)
@@ -92,6 +92,10 @@ def test_correct_upload(mock_client):
     actual_key = response['Contents'][0]['Key']
 
     assert actual_key == expected_key
+
+    assert upload_response == f"Uploaded to s3://{bucket_name}/{expected_key}"
+
+
 
 
 
