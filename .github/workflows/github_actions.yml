@@ -1,0 +1,90 @@
+name: Totesys Test and Deploy
+run-name: ${{ github.actor }} has triggered testing on push 🚀
+on: [push]
+jobs:
+  postgres-run-tests:
+
+    runs-on: ubuntu-latest
+    environment: dev
+    
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+        - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+  
+      - name: Setup database
+        run: psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
+        env: 
+          PGPASSWORD: postgres
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run makefile
+        run: make run-all
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+  
+  terraform:
+
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: dev
+    needs: postgres-run-tests
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout out repository code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4.1.0
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: "eu-west-2"
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      working-directory: terraform
+      run: terraform init
+
+    - name: Terraform Format
+      working-directory: terraform
+      run: terraform fmt -check
+
+    - name: Terraform Plan
+      working-directory: terraform
+      run: terraform plan -input=false
+
+    - name: Terraform Apply
+      working-directory: terraform
+      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
+
+
