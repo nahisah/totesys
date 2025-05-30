@@ -37,12 +37,12 @@ data "aws_iam_policy_document" "ingestion_s3_document" { ## Set permissions for 
   }
 
   statement {
-    
-            # "Effect":= "Allow",
-            actions = ["secretsmanager:GetSecretValue"]
-            resources = ["arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"]
-        }
+
+    # "Effect":= "Allow",
+    actions   = ["secretsmanager:GetSecretValue"]
+    resources = ["arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"]
   }
+}
 
 data "aws_iam_policy_document" "ingestion_cw_document" {
   statement {
