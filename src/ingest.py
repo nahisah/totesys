@@ -7,7 +7,11 @@ from pg8000.native import identifier
 import json
 import boto3
 from botocore.exceptions import ClientError
+import botocore.exceptions
 import datetime
+from datetime import timezone
+import pg8000
+from utils.default_serialiser import default_serialiser
 
 
 
@@ -15,17 +19,7 @@ from utils.db_connection import create_conn, close_conn
 
 
 
-# datestamp change to a supported function
 # do a big function that runs everything with all the table names
-# look at the main.py file and decide what we need from it
-# write documentation - at least docstrings
-# informative message error - note runtime error
-
-
-# tasks for the future:
-# update this function to only consider UPDATES/NEW INFORMATION IN THE TOTESYS DATABASE
-# update this function and db_connection.py to connect to real database
-# make sure that it works with our real bucket too
 
 
 
@@ -50,7 +44,7 @@ def extract_data(table_name):
             columns = [column['name'] for column in conn.columns]
             result = [dict(zip(columns,row)) for row in data]
             return result
-        except pg8000.exceptions.DatabaseError as e:
+        except Exception as e:
             raise RuntimeError(f"Database query failed: {e}")
         finally:
             close_conn(conn)
@@ -63,17 +57,23 @@ def convert_to_json(data):
     Returns:
     a json object
     """
-    return json.dumps(data)
 
-
-# a function that would upload  to the s3 bucket
-# the data would be saved under the keys that were agreed on
+    return json.dumps(data, default=default_serialiser)
 
 
 
 
 def upload_to_s3(data, bucket_name, table_name):
-    
+    """This function takes a json object and uploads it to a given bucket with a key that includes table name and datestamp
+    Arguments:
+    data - a json object
+    bucket_name - a string representing the name of s3 bucket
+    table_name - a string respresenting the table the data from which we are uploading
+    Returns:
+    A message confirming successful upload and showing the full key    
+    """
+
+
     s3 = boto3.client('s3')
 
     # Current UTC timestamp
@@ -96,8 +96,27 @@ def upload_to_s3(data, bucket_name, table_name):
         print(message)
         return message
     
-    except ClientError as e:
-        print(f"S3 upload failed: {e}")
-        raise
+    except Exception as e:
+        raise RuntimeError(f"Database query failed: {e}")
+
+
+
+
+def ingest(table_name, bucket_name):
+    
+    try:
+        extracted_data = extract_data(table_name)
+
+        converted_data = convert_to_json(extracted_data)
+
+        upload_to_s3(converted_data, bucket_name, table_name)
+
+        return 'Ingestion successful'
+
+
+    except Exception as e:
+        raise RuntimeError(f"Ingestion failed: {e}")
+
+
 
 
