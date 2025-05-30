@@ -43,6 +43,11 @@ jobs:
 
       - name: Run makefile
         run: make run-all
+        env: 
+          DBUSER : postgres
+          DBNAME : mock_totesys
+          DBPASSWORD : postgres 
+
       - run: echo "🍏 This job's status is ${{ job.status }}."
   
   terraform:
