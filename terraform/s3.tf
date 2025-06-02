@@ -56,9 +56,9 @@ resource "aws_s3_bucket_object_lock_configuration" "processed_bucket_lock" {
 
 
 
-# resource "aws_s3_bucket" "code-bucket" {
-#   bucket_prefix = "code-bucket"
-#   tags = {
-#     BucketUsage = "Bucket to store code for lambda functions"
-#   }
-# }
+resource "aws_s3_bucket" "code-bucket" {
+  bucket_prefix = "code-bucket"
+  tags = {
+    BucketUsage = "Bucket to store code for lambda functions"
+  }
+}

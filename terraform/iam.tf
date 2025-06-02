@@ -90,3 +90,23 @@ resource "aws_iam_role_policy_attachment" "ingestion_lambda_cw_policy_attachment
   role       = aws_iam_role.ingestion_lambda_role.name
   policy_arn = aws_iam_policy.ingestion_cw_policy.arn
 }
+
+resource "aws_lambda_permission" "code_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.ingestion_lambda.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.code-bucket.arn
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.code-bucket.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.ingestion_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "AWSLogs/"
+    filter_suffix       = ".log"
+  }
+  depends_on = [aws_lambda_permission.code_bucket]
+}
