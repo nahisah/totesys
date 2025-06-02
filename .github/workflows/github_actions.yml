@@ -49,7 +49,46 @@ jobs:
           DBPASSWORD : postgres 
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
-  
+
+  package-code:
+
+      runs-on: ubuntu-latest
+      environment: dev
+      needs:  postgres-run-tests
+    
+      steps:
+          
+        - name: Checkout out repository code
+          uses: actions/checkout@v4
+    
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.12"
+    
+        - name: Install dependancies in lambda folder
+          run: |
+            mkdir -p lambda/package
+            pip install -r requirements.txt -t lambda/package 
+        
+        - name: Copying source code into lambda folder
+          run: cp -r src/* lambda/
+        
+        - name: Zip up lambda package
+          run: |
+            cd lambda
+            zip -r function.zip .
+        
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: eu-west-2
+
+        - name: Upload lambda zip to s3
+          run: aws s3 cp lambda/function.zip s3://code-bucket-totesys-project/
+    
   terraform:
 
     name: 'Terraform'
