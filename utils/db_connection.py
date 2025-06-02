@@ -10,11 +10,13 @@ def create_conn():
     user = os.environ['DBUSER']
     database = os.environ["DBNAME"]
     password = os.environ["DBPASSWORD"]
+    host = os.environ["HOST"]
 
     return Connection(
         database=database,
         user=user,
-        password=password
+        password=password,
+        host = host
     )
     
 

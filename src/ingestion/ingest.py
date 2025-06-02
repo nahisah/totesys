@@ -118,7 +118,3 @@ def ingest(table_name, bucket_name):
 
     except Exception as e:
         raise RuntimeError(f"Ingestion failed: {e}")
-
-
-
-
