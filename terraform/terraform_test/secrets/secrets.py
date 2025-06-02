@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+from ingest import ingest
 
 def lambda_handler(event, context):
     try:
@@ -15,6 +16,15 @@ def lambda_handler(event, context):
         
         secret = json.loads(response.text)["SecretString"]
         print(f"Retrieved secret: {secret}")
+        secret = json.loads(secret)
+        os.environ["DBUSER"] = secret["user"]
+        os.environ["DBNAME"] = secret["database"]
+        os.environ["DBPASSWORD"] = secret["password"]
+        os.environ["PORT"] =secret["port"]
+        os.environ["HOST"] = secret["host"]
+        
+        ingest("sales_order",os.environ["BUCKET_NAME"])
+        # print(os.environ)
         
         return {
             'statusCode': response.status_code,
