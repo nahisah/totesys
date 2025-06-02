@@ -7,7 +7,7 @@ from datetime import timezone
 
 from utils.db_connection import create_conn, close_conn
 from utils.normalise_datetime import normalise_datetimes
-from src.ingest import extract_data, convert_to_json, upload_to_s3, ingest
+from totesys.src.ingestion.ingest import extract_data, convert_to_json, upload_to_s3, ingest
 
 
 # fixture for connecting to database

@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-from ingest import ingest
+from totesys.src.ingestion.ingest import ingest
 
 def lambda_handler(event, context):
     try:
