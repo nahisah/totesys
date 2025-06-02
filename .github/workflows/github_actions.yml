@@ -65,19 +65,24 @@ jobs:
           uses: actions/setup-python@v5
           with:
             python-version: "3.12"
-    
-        - name: Install dependancies in lambda folder
+        
+        - name: Prepare lambda directories
           run: |
-            mkdir -p lambda/package
-            pip install -r requirements.txt -t lambda/package 
+            mkdir -p lambda/ingestion/package
         
-        - name: Copying source code into lambda folder
-          run: cp -r src/* lambda/
+        - name: Install dependancies 
+          run: |
+            pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/package
         
+        - name: Copying source code and utils into lambda folder
+          run: |
+            cp -r src/ingestion/* lambda/ingestion/
+            cp -r utils lambda/ingestion/
+
         - name: Zip up lambda package
           run: |
             cd lambda
-            zip -r function.zip .
+            zip -r ingestion.zip ingestion
         
         - name: Configure AWS Credentials
           uses: aws-actions/configure-aws-credentials@v4
@@ -87,7 +92,7 @@ jobs:
             aws-region: eu-west-2
 
         - name: Upload lambda zip to s3
-          run: aws s3 cp lambda/function.zip s3://code-bucket-totesys-project/
+          run: aws s3 cp lambda/ingestion.zip s3://code-bucket-totesys-project/
     
   terraform:
 
