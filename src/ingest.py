@@ -7,11 +7,7 @@ import datetime
 from datetime import timezone
 import pg8000
 from utils.default_serialiser import default_serialiser
-
-
-
 from utils.db_connection import create_conn, close_conn
-
 
 
 def extract_data(table_name):
@@ -53,7 +49,6 @@ def convert_to_json(data):
 
 
 
-
 def upload_to_s3(data, bucket_name, table_name):
     """This function takes a json object and uploads it to a given bucket with a key that includes table name and datestamp
     Arguments:
@@ -67,12 +62,11 @@ def upload_to_s3(data, bucket_name, table_name):
 
     s3 = boto3.client('s3')
 
-
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
     timestamp = now.strftime("%Y%m%dT%H%M%SZ")
 
-   
+
     key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     try:
@@ -112,7 +106,7 @@ def ingest(table_name, bucket_name):
     - Raises a run time error with a message "Ingestion failed" with the name of the error
     
     """
-    
+
     
     try:
         extracted_data = extract_data(table_name)
