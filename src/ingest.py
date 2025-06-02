@@ -1,8 +1,3 @@
-# a function to connect to database that would use parameterized queries with pg8000 to avoid SQL INJECTION
-# a function that would convert to json and upload  to the s3 bucket
-# the data would be saved under the keys that were agreed on
-
-# a function to connect to database that would use parameterized queries with pg8000 to avoid SQL INJECTION
 from pg8000.native import identifier
 import json
 import boto3
@@ -12,15 +7,7 @@ import datetime
 from datetime import timezone
 import pg8000
 from utils.default_serialiser import default_serialiser
-
-
-
 from utils.db_connection import create_conn, close_conn
-
-
-
-# do a big function that runs everything with all the table names
-
 
 
 def extract_data(table_name):
@@ -62,7 +49,6 @@ def convert_to_json(data):
 
 
 
-
 def upload_to_s3(data, bucket_name, table_name):
     """This function takes a json object and uploads it to a given bucket with a key that includes table name and datestamp
     Arguments:
@@ -76,12 +62,10 @@ def upload_to_s3(data, bucket_name, table_name):
 
     s3 = boto3.client('s3')
 
-    # Current UTC timestamp
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
     timestamp = now.strftime("%Y%m%dT%H%M%SZ")
 
-    # Format for the keys: table_name/YYYY/MM/DD/table_name-YYYYMMDDTHHMMSSZ.json
     key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     try:
@@ -103,6 +87,24 @@ def upload_to_s3(data, bucket_name, table_name):
 
 
 def ingest(table_name, bucket_name):
+
+    """This function calls extraction function, and transforms the data through converted_data function. 
+    It then uploads the data into the s3 bucket. If sucessful it returns successful, else it raises an error.
+    
+    Arguemnents:
+    
+    table_name string representing the name of the table the data is from 
+
+    bucket_name string representing the name of the s3 bucket that is being uploaded to
+
+    Return:
+
+    This either returns: 
+
+    - A string indicating: 'Ingestion successful' 
+    - Raises a run time error with a message "Ingestion failed" with the name of the error
+    
+    """
     
     try:
         extracted_data = extract_data(table_name)
