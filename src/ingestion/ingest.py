@@ -66,6 +66,7 @@ def upload_to_s3(data, bucket_name, table_name):
     date_path = now.strftime("%Y/%m/%d")
     timestamp = now.strftime("%Y%m%dT%H%M%SZ")
 
+
     key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     try:
@@ -105,6 +106,7 @@ def ingest(table_name, bucket_name):
     - Raises a run time error with a message "Ingestion failed" with the name of the error
     
     """
+
     
     try:
         extracted_data = extract_data(table_name)
@@ -118,3 +120,31 @@ def ingest(table_name, bucket_name):
 
     except Exception as e:
         raise RuntimeError(f"Ingestion failed: {e}")
+
+def lambda_handler(event, context):
+
+    """
+    AWS lambda handler initiating the ingestion of data using event parameter. 
+    It calls the ingest function which performs the extract transform load process.
+
+    Arguements: 
+
+    event - Dictionary includes the table name and bucket name as strings
+    context - Object providing run time information to handler 
+    
+    Return:
+
+    The string confirming successful ingestion or raises run time error.
+    """
+
+    table_name = event.get("table_name")
+    bucket_name = event.get("bucket_name")
+
+    if not table_name or not bucket_name:
+        raise ValueError("Missing 'table_name' or 'bucket_name' in event")
+   
+    return ingest(table_name, bucket_name)
+     
+
+
+
