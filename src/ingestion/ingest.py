@@ -12,13 +12,17 @@ from utils.db_connection import create_conn, close_conn
 
 def extract_data(table_name):
     """
-    This function will connect to the linked database and select all the information in the given table.
+    This function connects to the linked database and selects all the information in the given table.
 
     Arguments:
-    table_name - string, the name of the table in the database that we want to extract
+        table_name: string, the name of the table in the database that we want to extract
 
     Returns:
-    a list of dictionaries where each dictionary represents a single row in the given table and the keys are the column names in the given table
+        A list of dictionaries where each dictionary represents a single row in the given table
+        and the keys are the column names in the given table
+    
+    Raises: 
+        RuntimeError: Raises an exception
     """
 
     query = f"SELECT * FROM {identifier(table_name)}"
