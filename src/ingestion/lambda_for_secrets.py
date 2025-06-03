@@ -1,11 +1,12 @@
 import json
 import os
 import requests
-from totesys.src.ingestion.ingest import ingest
+from src.ingestion.ingest import ingest
 
 def lambda_handler(event, context):
+    
     try:
-        # Replace with the name or ARN of your secret
+        
         secret_name = "arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"
         
         secrets_extension_endpoint = f"http://localhost:2773/secretsmanager/get?secretId={secret_name}"
@@ -14,8 +15,9 @@ def lambda_handler(event, context):
         response = requests.get(secrets_extension_endpoint, headers=headers)
         print(f"Response status code: {response.status_code}")
         
+       
         secret = json.loads(response.text)["SecretString"]
-        print(f"Retrieved secret: {secret}")
+        
         secret = json.loads(secret)
         os.environ["DBUSER"] = secret["user"]
         os.environ["DBNAME"] = secret["database"]
@@ -24,14 +26,11 @@ def lambda_handler(event, context):
         os.environ["HOST"] = secret["host"]
         
         ingest("sales_order",os.environ["BUCKET_NAME"])
-        # print(os.environ)
+        
         
         return {
-            'statusCode': response.status_code,
-            'body': json.dumps({
-                'message': 'Successfully retrieved secret',
-                'secretRetrieved': True
-            })
+            'statusCode': response.status_code
+            
         }
     
     except Exception as e:
@@ -39,7 +38,7 @@ def lambda_handler(event, context):
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': 'Error retrieving secret',
+                'message': 'Error!',
                 'error': str(e)
             })
         }
