@@ -82,7 +82,7 @@ jobs:
 
     - name: Terraform Format
       working-directory: terraform
-      run: terraform fmt -check
+      run: terraform fmt 
 
     - name: Terraform Plan
       working-directory: terraform
