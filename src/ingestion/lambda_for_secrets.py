@@ -4,6 +4,16 @@ import requests
 from src.ingestion.ingest import ingest
 
 def lambda_handler(event, context):
+    """
+    This function will get database credentials from AWS Secrets Manager and run the 
+    ingest function (inputs data into s3 bucket)for all tables in the database.
+
+    Returns: 
+    A status code(200) signifying a successful input into the S3 bucket 
+    OR
+    A status code(500) signifying an unsuccessful attempt
+    
+    """
     
     try:
         
@@ -25,7 +35,13 @@ def lambda_handler(event, context):
         os.environ["PORT"] =secret["port"]
         os.environ["HOST"] = secret["host"]
         
-        ingest("sales_order",os.environ["BUCKET_NAME"])
+        table_names = ["sales_order", "design",
+                       "address", "counterparty", 
+                       "staff","currency","department"]
+        # Only 7 out of 11 tables included to match mock database
+        # To extract ALL tables include missing table names
+        for table in table_names:
+            ingest(table,os.environ["BUCKET_NAME"])
         
         
         return {

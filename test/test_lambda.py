@@ -43,7 +43,7 @@ def test_successful_request_returns_status_code_200(mock_request,client):
     assert lambda_handler({},{}) == {"statusCode": 200}
 
 @patch("src.ingestion.lambda_for_secrets.requests")
-def test_data_successfully_put_inside_bucket(mock_request,client):
+def test_all_data_successfully_put_inside_bucket(mock_request,client):
     client.create_bucket(
         Bucket="ingestion-bucket",
         CreateBucketConfiguration={"LocationConstraint":"eu-west-2"}
@@ -60,7 +60,7 @@ def test_data_successfully_put_inside_bucket(mock_request,client):
     lambda_handler({},{})
     contents = client.list_objects_v2(Bucket="ingestion-bucket")
     
-    assert len(contents["Contents"]) > 0
+    assert len(contents["Contents"]) == 7 #Number should match amount of table names
 
 @patch("src.ingestion.lambda_for_secrets.requests")
 def test_status_code_500_for_wrong_request(mock_request,client):
