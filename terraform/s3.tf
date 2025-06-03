@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "ingestion-bucket" {
+resource "aws_s3_bucket" "ingestion_bucket" {
   bucket_prefix       = "bucket-one-ingestion"
   object_lock_enabled = true
   tags = {
