@@ -91,7 +91,7 @@ resource "aws_iam_role_policy_attachment" "ingestion_lambda_cw_policy_attachment
   policy_arn = aws_iam_policy.ingestion_cw_policy.arn
 }
 
-resource "aws_lambda_permission" "code_bucket" {
+resource "aws_lambda_permission" "allow_bucket" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.ingestion_lambda.arn
@@ -108,5 +108,5 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     filter_prefix       = "AWSLogs/"
     filter_suffix       = ".log"
   }
-  depends_on = [aws_lambda_permission.code_bucket]
+  depends_on = [aws_lambda_permission.allow_bucket]
 }

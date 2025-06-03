@@ -22,7 +22,7 @@ def lambda_handler(event, context):
         os.environ["DBPASSWORD"] = secret["password"]
         os.environ["PORT"] =secret["port"]
         os.environ["HOST"] = secret["host"]
-        
+    
         ingest("sales_order",os.environ["BUCKET_NAME"])
         # print(os.environ)
         

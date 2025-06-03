@@ -2,7 +2,7 @@ resource "aws_lambda_function" "ingestion_lambda" {
 
   function_name = "ingestion_lambda"
   #   filename      = data.archive_file.ingestion_zip.output_path ## reference to zipped ingestion lambda
-  s3_bucket = "code-bucket-totesys-project"
+  s3_bucket = aws_s3_bucket.code-bucket.bucket
   s3_key    = "lambda-funtion.zip"
   role      = aws_iam_role.ingestion_lambda_role.arn
   handler   = "secrets.lambda_handler"
