@@ -47,6 +47,7 @@ jobs:
           DBUSER : postgres
           DBNAME : mock_totesys
           DBPASSWORD : postgres 
+          PORT: 5432
           HOST : localhost
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
