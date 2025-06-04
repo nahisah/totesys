@@ -4,13 +4,13 @@ import datetime
 import boto3
 from moto import mock_aws
 from datetime import timezone
-
+import os
 from utils.db_connection import create_conn, close_conn
 from utils.normalise_datetime import normalise_datetimes
 from src.ingestion.ingest import extract_data, convert_to_json, upload_to_s3, ingest
+from unittest.mock import patch
 
-
-
+    
 # fixture for connecting to database
 @pytest.fixture(scope="module")
 def db():
@@ -136,9 +136,3 @@ def test_ingestion_works(mock_client):
     actual_key = response['Contents'][0]['Key']
 
     assert actual_key == expected_key
-
-
-
-
-
-
