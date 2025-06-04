@@ -151,7 +151,9 @@ jobs:
             aws-region: eu-west-2
 
         - name: Upload lambda zip to code-bucket s3
-          run: aws s3 cp lambda/ingestion.zip s3://$BUCKET_NAME
+          run: |
+            echo $BUCKET_NAME
+            aws s3 cp lambda/ingestion.zip s3://$BUCKET_NAME
 
 
 
