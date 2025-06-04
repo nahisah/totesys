@@ -9,7 +9,6 @@ from utils.db_connection import create_conn, close_conn
 from utils.normalise_datetime import normalise_datetimes
 from src.ingestion.ingest import extract_data, convert_to_json, upload_to_s3, ingest
 from unittest.mock import patch
-from decimal import Decimal
 
     
 # fixture for connecting to database
@@ -154,10 +153,6 @@ def test_sales_order_ingestion(mock_client):
     # assert
     response = mock_client.list_objects(Bucket=bucket_name)
     actual_key = response['Contents'][1]['Key']
-    assert actual_key.endswith(".json")
-    assert table_name in actual_key
-    assert actual_key.startswith(f"{table_name}/{date_path}/")
-    
     assert actual_key == expected_key
            
 
