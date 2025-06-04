@@ -113,7 +113,7 @@ jobs:
 
       runs-on: ubuntu-latest
       environment: dev
-      needs:  postgres-run-tests
+      needs:  [postgres-run-tests, terraform]
     
       steps:
           
