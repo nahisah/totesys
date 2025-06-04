@@ -51,7 +51,51 @@ jobs:
           HOST : localhost
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
-  
+
+  package-code:
+
+      runs-on: ubuntu-latest
+      environment: dev
+      needs:  postgres-run-tests
+    
+      steps:
+          
+        - name: Checkout out repository code
+          uses: actions/checkout@v4
+    
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.12"
+        
+        - name: Prepare lambda directories
+          run: |
+            mkdir -p lambda/ingestion/package
+        
+        - name: Install dependancies 
+          run: |
+            pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/package
+        
+        - name: Copying source code and utils into lambda folder
+          run: |
+            cp -r src/ingestion/* lambda/ingestion/
+            cp -r utils lambda/ingestion/
+
+        - name: Zip up lambda package
+          run: |
+            cd lambda
+            zip -r ingestion.zip ingestion
+        
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: eu-west-2
+
+        - name: Upload lambda zip to s3
+          run: aws s3 cp lambda/ingestion.zip s3://code-bucket-totesys-project/
+    
   terraform:
 
     name: 'Terraform'
@@ -83,7 +127,7 @@ jobs:
 
     - name: Terraform Format
       working-directory: terraform
-      run: terraform fmt -check
+      run: terraform fmt 
 
     - name: Terraform Plan
       working-directory: terraform

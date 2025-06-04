@@ -77,6 +77,7 @@ def upload_to_s3(data, bucket_name, table_name):
     date_path = now.strftime("%Y/%m/%d")
     timestamp = now.strftime("%Y%m%dT%H%M%SZ")
 
+
     key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     try:
@@ -115,6 +116,7 @@ def ingest(table_name, bucket_name):
         RuntimeError: Raises an exception
     
     """
+
     
     try:
         extracted_data = extract_data(table_name)

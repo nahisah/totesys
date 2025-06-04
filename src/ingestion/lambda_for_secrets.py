@@ -16,7 +16,6 @@ def lambda_handler(event, context):
     """
     
     try:
-        
         secret_name = "arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"
         
         secrets_extension_endpoint = f"http://localhost:2773/secretsmanager/get?secretId={secret_name}"
@@ -25,10 +24,9 @@ def lambda_handler(event, context):
         response = requests.get(secrets_extension_endpoint, headers=headers)
         print(f"Response status code: {response.status_code}")
         
-       
         secret = json.loads(response.text)["SecretString"]
-        
         secret = json.loads(secret)
+        
         os.environ["DBUSER"] = secret["user"]
         os.environ["DBNAME"] = secret["database"]
         os.environ["DBPASSWORD"] = secret["password"]
@@ -41,12 +39,10 @@ def lambda_handler(event, context):
         # Only 7 out of 11 tables included to match mock database
         # To extract ALL tables include missing table names
         for table in table_names:
-            ingest(table,os.environ["BUCKET_NAME"])
-        
-        
+            ingest(table, os.environ["BUCKET_NAME"])
+
         return {
             'statusCode': response.status_code
-            
         }
     
     except Exception as e:
