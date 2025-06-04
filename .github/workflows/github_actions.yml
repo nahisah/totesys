@@ -94,13 +94,13 @@ jobs:
       working-directory: terraform
       run: terraform plan -input=false
 
-    - name: Terraform Apply Initial Steps
-      working-directory: terraform
-      id: vars
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: |
-          terraform apply -auto-approve -input=false
-          echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_ENV
+    # - name: Terraform Apply Initial Steps
+    #   working-directory: terraform
+    #   id: vars
+    #   if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+    #   run: |
+    #       terraform apply -auto-approve -input=false
+    #       echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_ENV
 
   
     - name: Set up Python
@@ -133,10 +133,20 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: eu-west-2
 
-    - name: Upload lambda zip to code-bucket s3
+    - name: Terraform Apply Initial Steps
+      working-directory: terraform
+      id: vars
+      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: |
-        echo $BUCKET_NAME
-        aws s3 cp lambda/ingestion.zip "s3://${BUCKET_NAME}"
+          terraform apply -auto-approve -input=false
+          aws s3 cp ../lambda/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
+
+
+
+    # - name: Upload lambda zip to code-bucket s3
+    #   run: |
+    #     echo $BUCKET_NAME
+    #     aws s3 cp lambda/ingestion.zip "s3://${BUCKET_NAME}"
 
 
 
