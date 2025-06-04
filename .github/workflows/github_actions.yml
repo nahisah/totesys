@@ -69,13 +69,13 @@ jobs:
         
         - name: Prepare lambda directories
           run: |
-            mkdir -p lambda/ingestion/package
-            mkdir -p lambda/transform/package
+            mkdir -p lambda/ingestion/
+            mkdir -p lambda/transform/
         
         - name: Install dependancies 
           run: |
-            pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/package
-            pip install -r src/transform/transform_requirements.txt -t lambda/transform/package
+            pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/
+            pip install -r src/transform/transform_requirements.txt -t lambda/transform/
         
         - name: Copying source code and utils into lambda folder
           run: |
