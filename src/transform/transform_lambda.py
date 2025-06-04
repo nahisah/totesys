@@ -18,7 +18,7 @@ def get_table_data_from_ingest_bucket(table_name, bucket_name):
             Bucket=bucket_name,
             Prefix=table_name
         )
-        object_key = listing_response["Contents"][0]["Key"]
+        object_key = listing_response["Contents"][-1]["Key"]
         retrieval_response = client.get_object(
             Bucket=bucket_name,
             Key=object_key
