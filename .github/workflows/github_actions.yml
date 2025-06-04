@@ -101,8 +101,8 @@ jobs:
 
         - name: Upload lambda zip to s3
           run: |
-            aws s3 cp lambda/ingestion.zip s3://code-bucket-totesys-project/
-            aws s3 cp lambda/transform-lambda.zip s3://code-bucket-totesys-project/
+            aws s3 cp lambda/ingestion/ingestion.zip s3://code-bucket-totesys-project/
+            aws s3 cp lambda/transform/transform-lambda.zip s3://code-bucket-totesys-project/
     
   terraform:
 
