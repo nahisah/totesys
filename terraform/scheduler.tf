@@ -50,3 +50,29 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
   }
 
 }
+
+resource "aws_sns_topic" "transform_lambda_alert_topic" { #AWS service that allows sending messages to 'subscribers'
+  name = "transform-failure-alerts"
+}
+
+resource "aws_sns_topic_subscription" "transform_email_alert" { #specify the 'subscriber' endpoint for the alarm
+  topic_arn = aws_sns_topic.transform_lambda_alert_topic.arn
+  protocol  = "email"
+  endpoint  = "taimoor.deds@gmail.com"
+}
+
+resource "aws_cloudwatch_metric_alarm" "transform_error_alarm" {
+  alarm_name          = "TransformFailureAlarm"
+  comparison_operator = "GreaterThanThreshold" #triggers alarm on anything greater than specified threshold
+  evaluation_periods  = 1                      #i.e. with a period of 60 (1 minute), how many minutes are we looking at to trigger an alarm
+  metric_name         = "Errors"               #lambda metric keyword
+  namespace           = "AWS/Lambda"           #namespace for metric
+  period              = 60                     # cloudwatch collects and evaluates metric data in 60 seconds intervals here
+  statistic           = "Sum"                  #sums errors over specified period
+  threshold           = 0                      #the threshold of errors at which an email alert would be sent
+  alarm_description   = "Alarm for transform lambda errors"
+  alarm_actions       = [aws_sns_topic.transform_lambda_alert_topic.arn]
+  dimensions = { #specify which lambda is tracked
+    FunctionName = "transform_lambda"
+  }
+}
