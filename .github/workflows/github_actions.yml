@@ -125,6 +125,7 @@ jobs:
 
     - name: Terraform Apply Initial Steps
       working-directory: terraform
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
           terraform apply -auto-approve -input=false
           aws s3 cp ../lambda/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
@@ -132,7 +133,6 @@ jobs:
 # IS THE BELOW IF NECESSARY
     # - name: Terraform Apply Initial Steps
     #   working-directory: terraform
-    #   id: variable
     #   if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
     #   run: |
     #       terraform apply -auto-approve -input=false
