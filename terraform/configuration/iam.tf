@@ -96,11 +96,11 @@ resource "aws_lambda_permission" "allow_bucket" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.ingestion_lambda.arn
   principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.code-bucket.arn
+  source_arn    = code-bucket.arn
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.code-bucket.id
+  bucket = code-bucket.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.ingestion_lambda.arn
