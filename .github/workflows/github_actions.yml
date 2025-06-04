@@ -98,7 +98,7 @@ jobs:
       run: |
           terraform apply -auto-approve -input=false
           BUCKET_NAME=$(terraform output -raw code_bucket_name)
-          echo "BUCKET_NAME=$BUCKET_NAME" >> $CODE_BUCKET_NAME
+          echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
 
 
     # - name: Set variable for code bucket name
