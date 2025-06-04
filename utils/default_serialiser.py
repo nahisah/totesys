@@ -2,7 +2,8 @@ from datetime import datetime
 from decimal import Decimal
 
 """
-This function is a custom serialiser function that converts datetime objects into a ISO 8601 string 
+This function is a custom serialiser function that converts datetime objects into a ISO 8601 string and a decimal object
+ into a string
 
 Arguments: 
     obj: Any python object to serialise
