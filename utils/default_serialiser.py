@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 """
 This function is a custom serialiser function that converts datetime objects into a ISO 8601 string 
@@ -16,4 +17,6 @@ Raises:
 def default_serialiser(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
+    if isinstance(obj, Decimal):
+        return str(obj)
     raise TypeError(f"Type {type(obj)} not serializable")
