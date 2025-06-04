@@ -47,64 +47,11 @@ jobs:
           DBUSER : postgres
           DBNAME : mock_totesys
           DBPASSWORD : postgres 
+          PORT: 5432
           HOST : localhost
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  package-code:
-
-      runs-on: ubuntu-latest
-      environment: dev
-      needs:  postgres-run-tests
-    
-      steps:
-          
-        - name: Checkout out repository code
-          uses: actions/checkout@v4
-    
-        - name: Set up Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: "3.12"
-        
-        - name: Prepare lambda directories
-          run: |
-            mkdir -p lambda/ingestion/src/ingestion/
-            mkdir -p lambda/transform/src/transform
-        
-        - name: Install dependancies 
-          run: |
-            pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/
-            pip install -r src/transform/transform_requirements.txt -t lambda/transform/
-        
-        - name: Copying source code and utils into lambda folder
-          run: |
-            cp -r src/ingestion/* lambda/ingestion/src/ingestion/
-            cp -r utils lambda/ingestion/
-            cp -r src/transform/* lambda/transform/src/transform
-            cp -r utils lambda/transform/
-            cp -r src/ingestion/* lambda/ingestion/
-            cp -r src/transform/* lambda/transform/
-
-        - name: Zip up lambda package
-          run: |
-            cd lambda/ingestion/
-            zip -r ingestion.zip .
-            cd ..
-            cd transform
-            zip -r transform-lambda.zip .
-        
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: eu-west-2
-
-        - name: Upload lambda zip to s3
-          run: |
-            aws s3 cp lambda/ingestion/ingestion.zip s3://code-bucket-totesys-project/
-            aws s3 cp lambda/transform/transform-lambda.zip s3://code-bucket-totesys-project/
     
   terraform:
 
@@ -137,15 +84,81 @@ jobs:
 
     - name: Terraform Format
       working-directory: terraform
-      run: terraform fmt -check
+      run: terraform fmt 
 
     - name: Terraform Plan
       working-directory: terraform
       run: terraform plan -input=false
 
-    - name: Terraform Apply
-      working-directory: terraform
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    
+    - name: Prepare lambda directories
+      run: |
+        mkdir -p lambda/ingestion/src/ingestion
+        mkdir -p lambda/transform/src/transform
+    
+    - name: Install dependancies 
+      run: |
+        pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/
+        pip install -r src/transform/transform_requirements.txt -t lambda/transform/
+    
+    - name: Copying source code and utils into lambda folder
+      run: |
+            cp -r src/ingestion/* lambda/ingestion/src/ingestion/
+            cp -r utils lambda/ingestion/
+            cp -r src/transform/* lambda/transform/src/transform
+            cp -r utils lambda/transform/
+            cp -r src/ingestion/* lambda/ingestion/
+            cp -r src/transform/* lambda/transform/
+
+    - name: Zip up lambda package
+      run: |
+            cd lambda/ingestion/
+            zip -r ingestion.zip .
+            cd ../transform
+            zip -r transform-lambda.zip .
+    
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
+
+    - name: Terraform Apply Initial Steps
+      working-directory: terraform
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+          terraform apply -auto-approve -input=false
+          aws s3 cp ../lambda/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
+          aws s3 cp ../lambda/transform/transform-lambda.zip "s3://$(terraform output -raw code_bucket_name)"
+
+    - name: Terraform Apply In Full
+      working-directory: terraform
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false -var="deploy_lambda_bool=true"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
