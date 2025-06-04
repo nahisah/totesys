@@ -102,6 +102,42 @@ jobs:
           terraform apply -auto-approve -input=false
           echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_OUTPUT
 
+  
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    
+    - name: Prepare lambda directories
+      run: |
+        mkdir -p lambda/ingestion/package
+    
+    - name: Install dependancies 
+      run: |
+        pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/package
+    
+    - name: Copying source code and utils into lambda folder
+      run: |
+        cp -r src/ingestion/* lambda/ingestion/
+        cp -r utils lambda/ingestion/
+
+    - name: Zip up lambda package
+      run: |
+        cd lambda
+        zip -r ingestion.zip ingestion
+    
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-2
+
+    - name: Upload lambda zip to code-bucket s3
+      run: |
+        aws s3 cp lambda/ingestion.zip "s3://${BUCKET_NAME}"
+
+
 
 
     # terraform apply -auto-approve -input=false
@@ -116,60 +152,60 @@ jobs:
     #   working-directory: terraform
       # we can refer to it later with ${{steps.vars.outputs.code_bucket_name}}
 
-  package-code:
+  # package-code:
 
-      runs-on: ubuntu-latest
-      environment: dev
-      needs:  [terraform]
+  #     runs-on: ubuntu-latest
+  #     environment: dev
+  #     needs:  [terraform]
 
-      steps:
+  #     steps:
           
-        - name: Checkout out repository code
-          uses: actions/checkout@v4
+  #       - name: Checkout out repository code
+  #         uses: actions/checkout@v4
     
-        - name: Set up Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: "3.12"
+  #       - name: Set up Python
+  #         uses: actions/setup-python@v5
+  #         with:
+  #           python-version: "3.12"
         
-        - name: Prepare lambda directories
-          run: |
-            mkdir -p lambda/ingestion/package
+  #       - name: Prepare lambda directories
+  #         run: |
+  #           mkdir -p lambda/ingestion/package
         
-        - name: Install dependancies 
-          run: |
-            pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/package
+  #       - name: Install dependancies 
+  #         run: |
+  #           pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/package
         
-        - name: Copying source code and utils into lambda folder
-          run: |
-            cp -r src/ingestion/* lambda/ingestion/
-            cp -r utils lambda/ingestion/
+  #       - name: Copying source code and utils into lambda folder
+  #         run: |
+  #           cp -r src/ingestion/* lambda/ingestion/
+  #           cp -r utils lambda/ingestion/
 
-        - name: Zip up lambda package
-          run: |
-            cd lambda
-            zip -r ingestion.zip ingestion
+  #       - name: Zip up lambda package
+  #         run: |
+  #           cd lambda
+  #           zip -r ingestion.zip ingestion
         
-        - name: Configure AWS Credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: eu-west-2
+  #       - name: Configure AWS Credentials
+  #         uses: aws-actions/configure-aws-credentials@v4
+  #         with:
+  #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #           aws-region: eu-west-2
 
-        - name: Upload lambda zip to code-bucket s3
-          run: |
-            aws s3 cp lambda/ingestion.zip "s3://${{ needs.terraform.outputs.bucket}}"
-
-
+  #       - name: Upload lambda zip to code-bucket s3
+  #         run: |
+  #           aws s3 cp lambda/ingestion.zip "s3://${{ needs.terraform.outputs.bucket}}"
 
 
 
 
-    # - name: Terraform Apply In Full
-    #   working-directory: terraform
-    #   if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-    #   run: terraform apply -auto-approve -input=false -var="deploy_lambda_bool=true"
+
+
+  #   # - name: Terraform Apply In Full
+  #   #   working-directory: terraform
+  #   #   if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+  #   #   run: terraform apply -auto-approve -input=false -var="deploy_lambda_bool=true"
 
 
 
