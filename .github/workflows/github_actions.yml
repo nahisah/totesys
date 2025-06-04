@@ -154,9 +154,11 @@ jobs:
             aws-region: eu-west-2
 
         - name: Upload lambda zip to code-bucket s3
+          env:
+            BUCKET_NAME: ${{ needs.terraform.outputs.code-bucket}}
           run: |
             echo ${{ needs.terraform.outputs.code-bucket}}
-            aws s3 cp lambda/ingestion.zip s3://${{ needs.terraform.outputs.code-bucket}}
+            aws s3 cp lambda/ingestion.zip s3://$BUCKET_NAME
 
 
 
