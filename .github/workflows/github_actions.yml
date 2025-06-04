@@ -100,9 +100,13 @@ jobs:
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: |
           terraform apply -auto-approve -input=false
-          BUCKET_NAME=$(terraform output -raw code_bucket_name)
-          echo "BUCKET_NAME=$BUCKET_NAME" >> $GITHUB_ENV
+          echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_OUTPUT
 
+
+
+    # terraform apply -auto-approve -input=false
+    # BUCKET_NAME=$(terraform output -raw code_bucket_name)
+    # echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_ENV
 
     # - name: Set variable for code bucket name
     #   id: vars
@@ -117,6 +121,8 @@ jobs:
       runs-on: ubuntu-latest
       environment: dev
       needs:  [terraform]
+      env:
+        BUCKET_NAME: ${{ needs.terraform.outputs.code-bucket}}
     
       steps:
           
@@ -154,10 +160,9 @@ jobs:
             aws-region: eu-west-2
 
         - name: Upload lambda zip to code-bucket s3
-          env:
-            BUCKET_NAME: ${{ needs.terraform.outputs.code-bucket}}
+
           run: |
-            echo ${{ needs.terraform.outputs.code-bucket}}
+            echo $BUCKET_NAME
             aws s3 cp lambda/ingestion.zip s3://$BUCKET_NAME
 
 
