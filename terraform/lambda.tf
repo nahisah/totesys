@@ -18,11 +18,6 @@ resource "aws_lambda_function" "ingestion_lambda" {
   }
 }
 
-# data "archive_file" "ingestion_zip" { ## Zipping ingestion lambda function
-#   type        = "zip"
-#   source_file = "${path.module}/../terraform/terraform_test/test_lambda_handler.py" ##local file path to be zipped
-#   output_path = "${path.module}/../terraform/terraform_test/ingestion_function.zip" ## where zipped function will be stored
-# }
 
 
 

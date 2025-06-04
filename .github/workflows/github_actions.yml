@@ -61,8 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     needs: postgres-run-tests
-    outputs:
-      bucket: ${{ steps.vars.outputs.BUCKET_NAME }}
 
     defaults:
       run:
@@ -94,15 +92,7 @@ jobs:
       working-directory: terraform
       run: terraform plan -input=false
 
-    # - name: Terraform Apply Initial Steps
-    #   working-directory: terraform
-    #   id: vars
-    #   if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-    #   run: |
-    #       terraform apply -auto-approve -input=false
-    #       echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_ENV
 
-  
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -135,7 +125,6 @@ jobs:
 
     - name: Terraform Apply Initial Steps
       working-directory: terraform
-      id: variable
       run: |
           terraform apply -auto-approve -input=false
           aws s3 cp ../lambda/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
