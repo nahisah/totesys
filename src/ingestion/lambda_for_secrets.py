@@ -32,6 +32,7 @@ def lambda_handler(event, context):
         os.environ["DBPASSWORD"] = secret["password"]
         os.environ["PORT"] =secret["port"]
         os.environ["HOST"] = secret["host"]
+
         
         table_names = ["sales_order", "design",
                        "address", "counterparty", 
@@ -40,6 +41,7 @@ def lambda_handler(event, context):
         # To extract ALL tables include missing table names
         for table in table_names:
             ingest(table, os.environ["BUCKET_NAME"])
+
 
         return {
             'statusCode': response.status_code
