@@ -61,6 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     needs: postgres-run-tests
+    outputs:
+      code-bucket: ${{ steps.vars.outputs.BUCKET_NAME }}
 
     defaults:
       run:
@@ -94,6 +96,7 @@ jobs:
 
     - name: Terraform Apply Initial Steps
       working-directory: terraform
+      id: vars
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: |
           terraform apply -auto-approve -input=false
@@ -113,7 +116,7 @@ jobs:
 
       runs-on: ubuntu-latest
       environment: dev
-      needs:  [postgres-run-tests, terraform]
+      needs:  [terraform]
     
       steps:
           
@@ -152,8 +155,8 @@ jobs:
 
         - name: Upload lambda zip to code-bucket s3
           run: |
-            echo $BUCKET_NAME
-            aws s3 cp lambda/ingestion.zip s3://$BUCKET_NAME
+            echo ${{ needs.terraform.outputs.code-bucket}}
+            aws s3 cp lambda/ingestion.zip s3://${{ needs.terraform.outputs.code-bucket}}
 
 
 
