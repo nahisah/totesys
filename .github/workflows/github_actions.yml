@@ -62,8 +62,7 @@ jobs:
     environment: dev
     needs: postgres-run-tests
     outputs:
-      code-bucket: 
-        value: ${{ steps.vars.outputs.BUCKET_NAME }}
+      bucket: ${{ steps.vars.outputs.BUCKET_NAME }}
 
     defaults:
       run:
@@ -160,7 +159,7 @@ jobs:
 
         - name: Upload lambda zip to code-bucket s3
           run: |
-            aws s3 cp lambda/ingestion.zip s3://${{ needs.terraform.outputs.code-bucket}}
+            aws s3 cp lambda/ingestion.zip "s3://${{ needs.terraform.outputs.bucket}}"
 
 
 
