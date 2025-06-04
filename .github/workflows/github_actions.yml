@@ -134,15 +134,18 @@ jobs:
     - name: Terraform Apply Initial Steps
       working-directory: terraform
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
-
-
-    - name: Set variable for code bucket name
-      id: vars
       run: |
+          terraform apply -auto-approve -input=false
           BUCKET_NAME=$(terraform output -raw code_bucket_name)
           echo "BUCKET_NAME=$BUCKET_NAME" >> $CODE_BUCKET_NAME
-      working-directory: terraform
+
+
+    # - name: Set variable for code bucket name
+    #   id: vars
+    #   run: |
+    #       BUCKET_NAME=$(terraform output -raw code_bucket_name)
+    #       echo "BUCKET_NAME=$BUCKET_NAME" >> $CODE_BUCKET_NAME
+    #   working-directory: terraform
       # we can refer to it later with ${{steps.vars.outputs.code_bucket_name}}
 
 
