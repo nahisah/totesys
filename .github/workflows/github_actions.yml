@@ -135,6 +135,7 @@ jobs:
 
     - name: Upload lambda zip to code-bucket s3
       run: |
+        echo $BUCKET_NAME
         aws s3 cp lambda/ingestion.zip "s3://${BUCKET_NAME}"
 
 
