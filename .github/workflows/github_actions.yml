@@ -69,8 +69,8 @@ jobs:
         
         - name: Prepare lambda directories
           run: |
-            mkdir -p lambda/ingestion/
-            mkdir -p lambda/transform/
+            mkdir -p lambda/ingestion/src/ingestion/
+            mkdir -p lambda/transform/src/transform
         
         - name: Install dependancies 
           run: |
@@ -79,10 +79,12 @@ jobs:
         
         - name: Copying source code and utils into lambda folder
           run: |
-            cp -r src/ingestion/* lambda/ingestion/
+            cp -r src/ingestion/* lambda/ingestion/src/ingestion/
             cp -r utils lambda/ingestion/
-            cp -r src/transform/* lambda/transform/
+            cp -r src/transform/* lambda/transform/src/transform
             cp -r utils lambda/transform/
+            cp -r src/ingestion/* lambda/ingestion/
+            cp -r src/transform/* lambda/transform/
 
         - name: Zip up lambda package
           run: |
