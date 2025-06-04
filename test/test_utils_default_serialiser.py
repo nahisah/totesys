@@ -15,10 +15,8 @@ def test_raises_type_error_on_unsupported_type():
         default_serialiser(456)
     assert "not serializable" in str(error.value)
 
-@pytest.mark.it("serialises decimal object to string")
+@pytest.mark.it("serialises decimal object to float")
 def test_serialises_decimal_object():
     decimal_input = Decimal("150.09")
-    serialised__output = "150.09"
-    assert default_serialiser(decimal_input) ==serialised__output 
-
-
+    serialised__output = 150.09
+    assert default_serialiser(decimal_input) == serialised__output 
