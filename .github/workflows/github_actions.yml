@@ -135,7 +135,7 @@ jobs:
 
     - name: Terraform Apply Initial Steps
       working-directory: terraform
-      id: vars
+      id: variable
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: |
           terraform apply -auto-approve -input=false
