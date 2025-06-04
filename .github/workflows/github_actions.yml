@@ -139,9 +139,12 @@ jobs:
 
     - name: Set variable for code bucket name
       id: vars
-      run: printf "code_bucket_name=%s\n" $(terraform -chdir="terraform" output -raw code_bucket_name) >> "$CODE_BUCKET_NAME"
-
+      run: |
+          BUCKET_NAME=$(terraform output -raw code_bucket_name)
+          echo "BUCKET_NAME=$BUCKET_NAME" >> $CODE_BUCKET_NAME
+      working-directory: terraform
       # we can refer to it later with ${{steps.vars.outputs.code_bucket_name}}
+
 
     - name: Upload lambda zip to s3
       run: aws s3 cp lambda/ingestion.zip s3://${{steps.vars.outputs.code_bucket_name}}/

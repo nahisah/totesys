@@ -5,5 +5,5 @@ output "lambda_function_name" {
 
 
 output "code_bucket_name" {
-value = aws_s3_bucket.data_bucket.id
+value = aws_s3_bucket.data_bucket.bucket
 }
