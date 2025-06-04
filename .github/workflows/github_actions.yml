@@ -86,9 +86,11 @@ jobs:
 
         - name: Zip up lambda package
           run: |
-            cd lambda
-            zip -r ingestion.zip ingestion
-            zip -r transform-lambda.zip transform
+            cd lambda/ingestion/
+            zip -r ingestion.zip .
+            cd ..
+            cd transform
+            zip -r transform-lambda.zip .
         
         - name: Configure AWS Credentials
           uses: aws-actions/configure-aws-credentials@v4
