@@ -100,7 +100,7 @@ jobs:
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: |
           terraform apply -auto-approve -input=false
-          echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_OUTPUT
+          echo "BUCKET_NAME=$(terraform output -raw code_bucket_name)" >> $GITHUB_ENV
 
   
     - name: Set up Python
