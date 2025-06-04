@@ -50,10 +50,6 @@ jobs:
           HOST : localhost
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
-
-
-
-
     
   terraform:
 
