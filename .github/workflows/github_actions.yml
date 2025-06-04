@@ -121,9 +121,7 @@ jobs:
       runs-on: ubuntu-latest
       environment: dev
       needs:  [terraform]
-      env:
-        BUCKET_NAME: ${{ needs.terraform.outputs.code-bucket}}
-    
+
       steps:
           
         - name: Checkout out repository code
@@ -161,8 +159,9 @@ jobs:
 
         - name: Upload lambda zip to code-bucket s3
           run: |
-            code_bucket = "s3://${BUCKET_NAME}"
-            aws s3 cp lambda/ingestion.zip code_bucket
+            aws s3 cp lambda/ingestion.zip "s3://${{ needs.terraform.outputs.code-bucket}}"
+
+
 
 
 
