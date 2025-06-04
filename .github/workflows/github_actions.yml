@@ -150,7 +150,7 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: eu-west-2
 
-        - name: Upload lambda zip to s3
+        - name: Upload lambda zip to code-bucket s3
           run: aws s3 cp lambda/ingestion.zip s3://$BUCKET_NAME
 
 
