@@ -4,13 +4,13 @@ import datetime
 import boto3
 from moto import mock_aws
 from datetime import timezone
-
+import os
 from utils.db_connection import create_conn, close_conn
 from utils.normalise_datetime import normalise_datetimes
-from src.ingestion.ingest import extract_data, convert_to_json, upload_to_s3, ingest
+from src.ingestion.ingest import extract_data, convert_to_json, upload_to_s3, ingest, lambda_handler
+from unittest.mock import patch
 
-
-
+    
 # fixture for connecting to database
 @pytest.fixture(scope="module")
 def db():
@@ -138,7 +138,33 @@ def test_ingestion_works(mock_client):
     assert actual_key == expected_key
 
 
+@pytest.mark.it('tests if lambda handler calls the ingest function once')
+def test_lambda_handler_success():
 
+    event = {
+        "table_name": "currency",
+        "bucket_name": "mock-bucket"
+    }
+    context = {}
 
+    with patch("src.ingestion.ingest.ingest") as mock_ingest:
+        mock_ingest.return_value = "Ingestion successful"
 
+        result = lambda_handler(event, context)
 
+        assert result == "Ingestion successful"
+        mock_ingest.assert_called_once_with("currency", "mock-bucket")
+
+@pytest.mark.it('ValueError raised when one or both parameters missing')
+def test_lambda_handler_missing_values():
+
+    context = {}
+
+    with pytest.raises(ValueError, match="Missing 'table_name' or 'bucket_name'"):
+        lambda_handler({"bucket_name": "mock-bucket"}, context)
+
+    with pytest.raises(ValueError, match="Missing 'table_name' or 'bucket_name'"):
+        lambda_handler({"table_name": "currency"}, context)
+
+    with pytest.raises(ValueError, match="Missing 'table_name' or 'bucket_name'"):
+        lambda_handler({}, context)
