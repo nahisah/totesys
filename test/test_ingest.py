@@ -9,6 +9,7 @@ from utils.db_connection import create_conn, close_conn
 from utils.normalise_datetime import normalise_datetimes
 from src.ingestion.ingest import extract_data, convert_to_json, upload_to_s3, ingest
 from unittest.mock import patch
+from decimal import Decimal
 
     
 # fixture for connecting to database
@@ -116,7 +117,7 @@ def test_informative_error_message_upload(mock_client):
         upload_to_s3(input_json, bucket_name, table_name)
 
 
-@pytest.mark.it('the ingest function extracts the data, changes it to json and saves in the given bucket')
+@pytest.mark.it('the ingest function extracts the data from the currency table, which contains datetime objects, changes them to json and saves in the given bucket')
 def test_ingestion_works(mock_client):
     # arrange
     table_name = 'currency'
@@ -136,3 +137,29 @@ def test_ingestion_works(mock_client):
     actual_key = response['Contents'][0]['Key']
 
     assert actual_key == expected_key
+
+@pytest.mark.it("the ingest function extracts the data from the sales_order table, which contains decimal objects, changes them to json and saves in the given bucket")
+def test_sales_order_ingestion(mock_client):
+     # arrange
+    table_name = 'sales_order'
+    bucket_name = 'mock_bucket_3'
+    now = datetime.datetime.now(timezone.utc)
+    date_path = now.strftime("%Y/%m/%d")
+    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
+    expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
+
+    # act
+    ingest(table_name, bucket_name)
+
+    # assert
+    response = mock_client.list_objects(Bucket=bucket_name)
+    actual_key = response['Contents'][1]['Key']
+    assert actual_key.endswith(".json")
+    assert table_name in actual_key
+    assert actual_key.startswith(f"{table_name}/{date_path}/")
+    
+    assert actual_key == expected_key
+           
+
+
+
