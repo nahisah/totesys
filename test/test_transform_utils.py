@@ -5,6 +5,7 @@ from moto import mock_aws
 import boto3
 from datetime import datetime, timezone
 import json
+import pandas as pd
 
 @pytest.fixture
 def test_mock_credentials():
@@ -71,3 +72,21 @@ class TestGetAllTableDataFromIngestBucket:
         assert isinstance(response, dict)
         for table_name in table_names:
             assert table_name in response
+
+class TestTransformTables:
+
+    @pytest.mark.it('transform_fact_sales_order returns a dataframe with columns as specified in the warehourse design')
+    def test_fact_sales_order(self):
+        # arrange
+        ingested_data = 
+
+        # act
+        actual = 
+        expected = 
+
+
+        # assert
+        assert isinstance(actual, pd.DataFrame)
+
+        assert actual.columns.tolist() == ['sales_record_id', 'sales_order_id', 'created_date',         'created_time', 'last_updated_date', 'last_updated_time', 'sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id', 'design_id', 'agreed_payment_date', 'agreed_delivery_date', 'agreed_delivery_location_id']
+
