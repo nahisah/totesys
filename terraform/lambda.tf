@@ -27,6 +27,8 @@ resource "aws_lambda_function" "transform_lambda" {
   role          = aws_iam_role.transform_lambda_role.arn
   handler       = "transform_lambda.lambda_handler"
 
+
+
   runtime = "python3.9"
 
   environment {

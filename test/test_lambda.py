@@ -1,7 +1,7 @@
 import pytest
 from moto import mock_aws
 import boto3
-from src.ingestion.lambda_for_secrets import lambda_handler
+from totesys.src.ingestion.secrets import lambda_handler
 import os
 from unittest.mock import patch
 import json
