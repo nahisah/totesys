@@ -134,7 +134,7 @@ jobs:
       # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
           terraform apply -auto-approve -input=false
-          aws s3 cp ../lambda/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
+          aws s3 cp ../lambda/ingestion/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
           aws s3 cp ../lambda/transform/transform-lambda.zip "s3://$(terraform output -raw code_bucket_name)"
 
     - name: Terraform Apply In Full
