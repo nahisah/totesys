@@ -1,12 +1,14 @@
-import pytest
-import json
 import datetime
-import boto3
-from moto import mock_aws
+import json
 from datetime import timezone
-from utils.db_connection import create_conn, close_conn
+
+import boto3
+import pytest
+from moto import mock_aws
+
+from src.ingestion.ingest import convert_to_json, extract_data, ingest, upload_to_s3
+from utils.db_connection import close_conn, create_conn
 from utils.normalise_datetime import normalise_datetimes
-from src.ingestion.ingest import extract_data, convert_to_json, upload_to_s3, ingest
 
 
 # fixture for connecting to database

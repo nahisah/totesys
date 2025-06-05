@@ -1,11 +1,13 @@
-import pytest
-from moto import mock_aws
-import boto3
-from src.ingestion.lambda_for_secrets import lambda_handler
+import json
 import os
 from unittest.mock import patch
-import json
+
+import boto3
 import dotenv
+import pytest
+from moto import mock_aws
+
+from src.ingestion.lambda_for_secrets import lambda_handler
 
 
 @pytest.fixture(autouse=True)

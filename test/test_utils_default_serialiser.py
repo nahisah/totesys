@@ -1,7 +1,9 @@
-import pytest
-from utils.default_serialiser import default_serialiser
 from datetime import datetime
 from decimal import Decimal
+
+import pytest
+
+from utils.default_serialiser import default_serialiser
 
 
 @pytest.mark.it("serialise datetime object into a ISO 8601 string")

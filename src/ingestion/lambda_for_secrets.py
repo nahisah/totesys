@@ -1,6 +1,8 @@
 import json
 import os
+
 import requests
+
 from src.ingestion.ingest import ingest
 
 

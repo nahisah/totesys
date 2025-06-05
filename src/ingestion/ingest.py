@@ -1,10 +1,12 @@
-from pg8000.native import identifier
-import json
-import boto3
 import datetime
+import json
 from datetime import timezone
+
+import boto3
+from pg8000.native import identifier
+
+from utils.db_connection import close_conn, create_conn
 from utils.default_serialiser import default_serialiser
-from utils.db_connection import create_conn, close_conn
 
 
 def extract_data(table_name):
