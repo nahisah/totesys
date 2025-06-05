@@ -1,4 +1,4 @@
-from src.transform.transform_utils import get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket, transform_fact_sales_order
+from src.transform.transform_utils import get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket, transform_fact_sales_order, convert_to_parquet, upload_to_s3
 import pytest
 import os
 from moto import mock_aws
@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 import json
 import pandas as pd
 import re
+import pyarrow
 
 
 @pytest.fixture
@@ -113,3 +114,65 @@ class TestTransformTables:
         assert re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', actual['last_updated_date'][0] )
         assert re.match(r'^[0-9]{2}:[0-9]{2}:[0-9]{2}', actual['created_time'][0] )
         assert re.match(r'^[0-9]{2}:[0-9]{2}:[0-9]{2}', actual['last_updated_time'][0] )
+
+
+
+class TestConvertToParquet:
+
+    @pytest.mark.it('convert_to_parquet converts a dataframe to a parquet format and returns it as bytes')
+    def test_convert_to_parquet(self):
+        # arrange
+        with open("data/test_data/sales_order-20250604T102926Z.json", 'r') as file:
+            data_sales_order = json.load(file)
+        
+        df = transform_fact_sales_order(data_sales_order)
+
+        # act
+        def is_it_parquet(input):
+            try:
+                pyarrow.BufferReader(input)
+                return True
+            except Exception as e:
+                print(e)
+                return False
+            
+        actual = convert_to_parquet(df)
+
+
+        # assert
+        assert is_it_parquet(actual) == True
+
+
+class TestUploadToS3:
+
+    @pytest.mark.skip('upload_to_s3 uploads a file to s3 with a correct key and in a correct format')
+    def test_upload_to_s3(self, client):
+        # arrange
+        bucket_name = "mock_bucket"
+        client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
+        key = 'mock_key' 
+        with open("data/test_data/sales_order-20250604T102926Z.json", 'r') as file:
+            data_sales_order = json.load(file)
+        
+        df = transform_fact_sales_order(data_sales_order)
+
+        parquet_output = convert_to_parquet(df)
+
+        # act
+
+        upload_to_s3(parquet_output, bucket_name, key)    
+
+        # assert
+
+
+# we want to check that the file saved in s3 is a parquet file
+# we can do it by inspecting the metadata by the code below
+        response = client.get_object(Bucket=bucket_name, Key=key)
+
+        pyarrow.parquet.read_metadata(response['Body'])
+
+
+
+
+
+

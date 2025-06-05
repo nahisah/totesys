@@ -4,9 +4,10 @@ def lambda_handler(event, context):
     ingested_data = get_all_table_data_from_ingest_bucket()
 
 
+
     
     # Build the dataframes from ingested_data, a dict whose keys are table names
-    # and whose values are dicts with the data from that table
+    # and whose values are lists of dicts with the data from that table
 
 
     # get the example tables from the ingestion s3 bucket and save in data folder

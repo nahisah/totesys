@@ -106,7 +106,11 @@ def transform_fact_sales_order(data_sales_order):
 
 
 
+def convert_to_parquet(table_df=pd.DataFrame):
     
+    parquet_file = table_df.to_parquet(path=None, index=False, engine='pyarrow')
+
+    return parquet_file
 
 
     
