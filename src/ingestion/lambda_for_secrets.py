@@ -40,7 +40,7 @@ def lambda_handler(event, context):
         # Only 7 out of 11 tables included to match mock database
         # To extract ALL tables include missing table names
         for table in table_names:
-            ingest(table, os.environ["BUCKET_NAME"])
+            ingest(table, os.environ["INGESTION_BUCKET_NAME"])
 
 
         return {

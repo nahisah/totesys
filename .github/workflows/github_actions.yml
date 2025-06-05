@@ -141,6 +141,7 @@ jobs:
       working-directory: terraform
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false -var="deploy_lambda_bool=true"
+      run: terraform apply -auto-approve -input=false -var="deploy_transform_lambda_bool=true"
 
 
 
