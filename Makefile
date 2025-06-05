@@ -15,7 +15,7 @@ install-requirements:
 
 install-dev-tools:
 	echo "installing dev tools..."
-	source venv/bin/activate && $(PIP) install bandit black safety pip-audit pytest pytest-cov
+	source venv/bin/activate && $(PIP) install bandit black safety pip-audit pytest pytest-cov flake8
 
 security-check:
 	source venv/bin/activate && bandit -lll */*.py *c/*.py && pip-audit
@@ -26,6 +26,9 @@ unit-test:
 format-code:
 	source venv/bin/activate && black test/ src/
 
+lint-code:
+    source venv/bin/activate && flake8 test/ src/ --max-line-length=88 --ignore=E203,W503
+
 run-checks: unit-test security-check
 
-run-all: create-environment install-requirements install-dev-tools run-checks format-code
+run-all: create-environment install-requirements install-dev-tools run-checks format-code lint-code
