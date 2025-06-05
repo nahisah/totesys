@@ -226,24 +226,24 @@ resource "aws_s3_bucket_notification" "bucket_notification_for_ingestion" {
 }
 
 
-resource "aws_lambda_permission" "allow_bucket_for_transform" {
-  count         = var.deploy_transform_lambda_bool ? 1 : 0
-  statement_id  = "AllowExecutionFromS3Bucket"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.transform_lambda[0].arn
-  principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.code-bucket.arn
-}
+# resource "aws_lambda_permission" "allow_bucket_for_transform" {
+#   count         = var.deploy_transform_lambda_bool ? 1 : 0
+#   statement_id  = "AllowExecutionFromS3Bucket"
+#   action        = "lambda:InvokeFunction"
+#   function_name = aws_lambda_function.transform_lambda[0].arn
+#   principal     = "s3.amazonaws.com"
+#   source_arn    = aws_s3_bucket.code-bucket.arn
+# }
 
-resource "aws_s3_bucket_notification" "bucket_notification_for_transform" {
-  count  = var.deploy_transform_lambda_bool ? 1 : 0
-  bucket = aws_s3_bucket.code-bucket.id
+# resource "aws_s3_bucket_notification" "bucket_notification_for_transform" {
+#   count  = var.deploy_transform_lambda_bool ? 1 : 0
+#   bucket = aws_s3_bucket.code-bucket.id
 
-  lambda_function {
-    lambda_function_arn = aws_lambda_function.transform_lambda[0].arn
-    events              = ["s3:ObjectCreated:*"]
-    filter_prefix       = "AWSLogs/"
-    filter_suffix       = ".log"
-  }
-  depends_on = [aws_lambda_permission.allow_bucket_for_transform]
-}
+#   lambda_function {
+#     lambda_function_arn = aws_lambda_function.transform_lambda[0].arn
+#     events              = ["s3:ObjectCreated:*"]
+#     filter_prefix       = "AWSLogs/"
+#     filter_suffix       = ".log"
+#   }
+#   depends_on = [aws_lambda_permission.allow_bucket_for_transform]
+# }
