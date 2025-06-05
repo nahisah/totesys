@@ -15,4 +15,5 @@ scramp==1.4.5
 six==1.17.0
 urllib3==2.4.0
 moto
+pandas
 
