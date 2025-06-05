@@ -41,4 +41,3 @@ def get_all_table_data_from_ingest_bucket():
     for table_name in table_names:
         ingested_data[table_name] = get_table_data_from_ingest_bucket(table_name, os.environ["BUCKET_NAME"])
     return ingested_data
-

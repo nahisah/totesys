@@ -51,6 +51,7 @@ jobs:
           HOST : localhost
 
       - run: echo "🍏 This job's status is ${{ job.status }}."
+
     
   terraform:
 
@@ -97,21 +98,29 @@ jobs:
     
     - name: Prepare lambda directories
       run: |
-        mkdir -p lambda/ingestion/package
+        mkdir -p lambda/ingestion/src/ingestion
+        mkdir -p lambda/transform/src/transform
     
     - name: Install dependancies 
       run: |
-        pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/package
+        pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/
+        pip install -r src/transform/transform_requirements.txt -t lambda/transform/
     
     - name: Copying source code and utils into lambda folder
       run: |
-        cp -r src/ingestion/* lambda/ingestion/
-        cp -r utils lambda/ingestion/
+            cp -r src/ingestion/* lambda/ingestion/src/ingestion/
+            cp -r utils lambda/ingestion/
+            cp -r src/transform/* lambda/transform/src/transform
+            cp -r utils lambda/transform/
+            cp -r src/ingestion/* lambda/ingestion/
+            cp -r src/transform/* lambda/transform/
 
     - name: Zip up lambda package
       run: |
-        cd lambda
-        zip -r ingestion.zip ingestion
+            cd lambda/ingestion/
+            zip -r ingestion.zip .
+            cd ../transform
+            zip -r transform-lambda.zip .
     
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -126,6 +135,7 @@ jobs:
       run: |
           terraform apply -auto-approve -input=false
           aws s3 cp ../lambda/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
+          aws s3 cp ../lambda/transform/transform-lambda.zip "s3://$(terraform output -raw code_bucket_name)"
 
     - name: Terraform Apply In Full
       working-directory: terraform

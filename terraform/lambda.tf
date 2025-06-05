@@ -2,7 +2,6 @@ resource "aws_lambda_function" "ingestion_lambda" {
 
   count = var.deploy_lambda_bool ? 1 : 0
   function_name = "ingestion_lambda"
-
   s3_bucket = aws_s3_bucket.code-bucket.bucket
   s3_key    = "ingestion.zip"
   role      = aws_iam_role.ingestion_lambda_role.arn
@@ -19,4 +18,20 @@ resource "aws_lambda_function" "ingestion_lambda" {
 }
 
 
+resource "aws_lambda_function" "transform_lambda" {
 
+
+  function_name = "transform_lambda"
+  s3_bucket     = "code-bucket-totesys-project"
+  s3_key        = "transform-lambda.zip"
+  role          = aws_iam_role.transform_lambda_role.arn
+  handler       = "transform_lambda.lambda_handler"
+
+  runtime = "python3.9"
+
+  environment {
+    variables = {
+      BUCKET_NAME = aws_s3_bucket.processed-bucket.bucket
+    }
+  }
+}
