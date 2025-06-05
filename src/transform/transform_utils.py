@@ -1,6 +1,7 @@
 import boto3
 import json
 import os
+import pandas as pd
 
 def get_table_data_from_ingest_bucket(table_name, bucket_name):
     """
@@ -59,5 +60,38 @@ def get_all_table_data_from_ingest_bucket():
     return ingested_data
 
 
-def transform_fact_sales_order(ingested_data):
-    pass
+def transform_fact_sales_order(data_sales_order):
+    
+    # note: the argument is the data only for the given table (sales_order table)
+
+    # transform the list of dictionaries into a dataframe
+    df = pd.DataFrame(data_sales_order)
+
+    # split created_at and _last_updated into date and time columns
+    df[["created_date","created_time"]] = df['created_at'].str.split('T', expand = True)
+    df[["last_updated_date","last_updated_time"]] = df['last_updated'].str.split('T', expand = True)
+
+
+    # delete unnecessary columns
+    del df['created_at']
+    del df['last_updated']
+
+    # add sales_record_id column as index
+    df.insert(0, 'sales_record_id', df.index)
+
+    df = df.rename(columns={'staff_id': 'sales_staff_id'})
+
+    columns_in_order = ['sales_record_id', 'sales_order_id', 'created_date',         'created_time', 'last_updated_date', 'last_updated_time', 'sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id', 'design_id', 'agreed_payment_date', 'agreed_delivery_date', 'agreed_delivery_location_id']
+
+    print(type(df.at[0, 'created_date']))
+
+    df = df[columns_in_order]
+
+    return df
+
+
+
+    
+
+
+    
