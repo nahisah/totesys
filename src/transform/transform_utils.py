@@ -61,15 +61,31 @@ def get_all_table_data_from_ingest_bucket():
 
 
 def transform_fact_sales_order(data_sales_order):
-    
-    # note: the argument is the data only for the given table (sales_order table)
 
-    # transform the list of dictionaries into a dataframe
+    """
+    Transforms data from the sales_order table into the format required for fact_sales_order
+
+    Arguments:
+    data in a form of a list of dictionaries representing the contents of the sales_order table
+
+
+    Returns:
+    a dataframe in the required format
+
+    
+    """
+
+
+
     df = pd.DataFrame(data_sales_order)
 
-    # split created_at and _last_updated into date and time columns
     df[["created_date","created_time"]] = df['created_at'].str.split('T', expand = True)
     df[["last_updated_date","last_updated_time"]] = df['last_updated'].str.split('T', expand = True)
+
+    pd.to_datetime(df['created_date'], format="%Y-%m-%d")
+    pd.to_datetime(df['last_updated_date'], format="%Y-%m-%d")
+    pd.to_datetime(df['created_time'], format="mixed")
+    pd.to_datetime(df['last_updated_time'], format="mixed")
 
 
     # delete unnecessary columns
@@ -83,7 +99,6 @@ def transform_fact_sales_order(data_sales_order):
 
     columns_in_order = ['sales_record_id', 'sales_order_id', 'created_date',         'created_time', 'last_updated_date', 'last_updated_time', 'sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id', 'design_id', 'agreed_payment_date', 'agreed_delivery_date', 'agreed_delivery_location_id']
 
-    print(type(df.at[0, 'created_date']))
 
     df = df[columns_in_order]
 

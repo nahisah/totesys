@@ -6,6 +6,7 @@ import boto3
 from datetime import datetime, timezone
 import json
 import pandas as pd
+import re
 
 
 @pytest.fixture
@@ -108,5 +109,7 @@ class TestTransformTables:
 
         # assert
 
-        assert isinstance(actual.at[0, 'created_date'], dict)
-
+        assert re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', actual['created_date'][0] )
+        assert re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', actual['last_updated_date'][0] )
+        assert re.match(r'^[0-9]{2}:[0-9]{2}:[0-9]{2}', actual['created_time'][0] )
+        assert re.match(r'^[0-9]{2}:[0-9]{2}:[0-9]{2}', actual['last_updated_time'][0] )
