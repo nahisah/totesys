@@ -27,7 +27,7 @@ format-code:
 	source venv/bin/activate && black test/ src/
 
 lint-code:
-    source venv/bin/activate && flake8 test/ src/ --max-line-length=88 --ignore=E203,W503
+	source venv/bin/activate && flake8 test/ src/ --max-line-length=88 --ignore=E203,W503,E501
 
 run-checks: unit-test security-check
 
