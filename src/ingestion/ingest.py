@@ -75,7 +75,7 @@ def upload_to_s3(data, bucket_name, table_name):
 
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
-    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
+    timestamp = now.strftime("%Y%m%dT%H%MZ")
 
 
     key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"

@@ -81,7 +81,7 @@ def test_correct_upload(mock_client):
     table_name = 'currency'
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
-    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
+    timestamp = now.strftime("%Y%m%dT%H%MZ")
     expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     # act
@@ -124,7 +124,7 @@ def test_ingestion_works(mock_client):
     mock_client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
-    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
+    timestamp = now.strftime("%Y%m%dT%H%MZ")
     expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     # act
@@ -144,7 +144,7 @@ def test_sales_order_ingestion(mock_client):
     bucket_name = 'mock_bucket_3'
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
-    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
+    timestamp = now.strftime("%Y%m%dT%H%MZ")
     expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     # act
