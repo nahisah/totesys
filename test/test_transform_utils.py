@@ -1,4 +1,4 @@
-from src.transform.transform_lambda import lambda_handler, get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket
+from src.transform.transform_utils import get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket, transform_fact_sales_order
 import pytest
 import os
 from moto import mock_aws
