@@ -28,7 +28,7 @@ def client(test_mock_credentials):
 @pytest.fixture
 def step_client(test_mock_credentials):
     with mock_aws():
-        yield boto3.client("stepfunctions")        
+        yield boto3.client("stepfunctions",region_name="eu-west-2")        
 
 
 @patch("src.ingestion.lambda_for_secrets.requests")
