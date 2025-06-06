@@ -3,7 +3,7 @@ import pytest
 import os
 from moto import mock_aws
 import boto3
-from datetime import datetime, timezone
+from datetime import timezone
 import datetime
 import json
 import pandas as pd
@@ -28,7 +28,7 @@ class TestGetTableDataFromIngestBucket:
     def test_returns_dictionary_with_correct_keys(self, client):
         bucket_name = "mock_bucket"
         client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
-        key = f"currency/2025/01/01/currency-{datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
+        key = f"currency/2025/01/01/currency-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
 
         client.put_object(
             Body=json.dumps([{
@@ -71,7 +71,7 @@ class TestGetAllTableDataFromIngestBucket:
                     "department"
         ]
         for table_name in table_names:
-            key = f"{table_name}/2025/01/01/{table_name}-{datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
+            key = f"{table_name}/2025/01/01/{table_name}-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
             client.put_object(
                 Body=json.dumps({}),
                 Bucket=bucket_name,
