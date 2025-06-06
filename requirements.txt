@@ -17,7 +17,6 @@ urllib3==2.4.0
 moto
 pandas
 pyarrow
-fastparquet
-s3fs
+awswrangler
 currency-codes
 
