@@ -15,7 +15,7 @@ def get_table_data_from_ingest_bucket(table_name, bucket_name):
         bucket_name: the name of the s3 bucket, which should be the ingestion bucket
 
     Returns:
-        A dictionary whose keys are column names from the ingested table and whose values are the most recent entires for that table
+        A list of dictionaries for a given table. The dictionaries' keys are column names from the ingested table and whose values are the most recent entries for that table.
 
     Raises: 
         RuntimeError on error
@@ -45,7 +45,7 @@ def get_all_table_data_from_ingest_bucket():
     Retrieves the most recent data for each table stored in the ingestion s3 bucket.
 
     Returns:
-        A dictionary whose keys are table names and whose values are dictionaries containing that table's data
+        A dictionary whose keys are table names and whose values are lists of dictionaries, each dictionary representing a table row.
     """
     table_names = [
         "sales_order",
