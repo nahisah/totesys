@@ -20,7 +20,7 @@ def lambda_handler(event, context):
     """
 
     step_function = os.environ["STEP_MACHINE_ARN"]
-    client = boto3.client("stepfunctions")
+    client = boto3.client("stepfunctions",region_name="eu-west-2")
     response = client.start_execution(
         stateMachineArn=step_function
     )
