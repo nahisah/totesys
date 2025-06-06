@@ -1,4 +1,4 @@
-from src.transform.transform_utils import get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket, transform_fact_sales_order, convert_to_parquet, upload_to_s3, transform_dim_design, transform_dim_currency, transform_dim_location, transform_dim_date
+from src.transform.transform_utils import get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket, transform_fact_sales_order, upload_to_s3, transform_dim_design, transform_dim_currency, transform_dim_location, transform_dim_date, transform_dim_staff, transform_dim_counterparty
 import pytest
 import os
 from moto import mock_aws
@@ -7,11 +7,7 @@ from datetime import datetime, timezone
 import datetime
 import json
 import pandas as pd
-import re
-import pyarrow
-from io import BytesIO
-import s3fs
-import numpy as np
+import awswrangler as wr
 
 
 @pytest.fixture
@@ -193,38 +189,49 @@ class TestTransformTables:
             "quarter"
         ]
 
-
-class TestConvertToParquet:
-
-    @pytest.mark.it('convert_to_parquet converts a dataframe to a parquet format and returns it as bytes')
-    def test_convert_to_parquet(self):
-        # arrange
-        with open("data/test_data/sales_order-20250604T102926Z.json", 'r') as file:
-            data_sales_order = json.load(file)
+    @pytest.mark.it('transform_dim_staff returns a dataframe with columns as specified in the warehouse design')
+    def test_dim_staff(self):
+        with open("data/test_data/staff-20250605T134758Z.json", 'r') as f1:
+            data_staff = json.load(f1)
+        with open("data/test_data/department-20250605T134851Z.json", 'r') as f2:
+            data_department = json.load(f2)
         
-        df = transform_fact_sales_order(data_sales_order)
+        actual = transform_dim_staff(data_staff, data_department)
+        assert isinstance(actual, pd.DataFrame)
+        assert actual.columns.tolist() == [
+            "staff_id",
+            "first_name",
+            "last_name",
+            "department_name",
+            "location",
+            "email_address"
+        ]
 
-        # act
-        def is_it_parquet(input):
-            try:
-                pyarrow.BufferReader(input)
-                return True
-            except Exception as e:
-                print(e)
-                return False
-            
-        actual = convert_to_parquet(df)
-
-
-        # assert
-        assert is_it_parquet(actual) == True
-
+    @pytest.mark.it('transform_dim_staff returns a dataframe with columns as specified in the warehouse design')
+    def test_dim_counterparty(self):
+        with open("data/test_data/counterparty-20250605T134757Z.json", 'r') as f1:
+            data_counterparty = json.load(f1)
+        with open("data/test_data/address-20250605T134757Z.json", 'r') as f2:
+            data_address = json.load(f2)
+        
+        actual = transform_dim_counterparty(data_counterparty, data_address)
+        assert isinstance(actual, pd.DataFrame)
+        assert actual.columns.tolist() == [
+            "counterparty_id",
+            "counterparty_legal_name",
+            "counterparty_legal_address_line_1",
+            "counterparty_legal_address_line_2",
+            "counterparty_legal_district",
+            "counterparty_legal_city",
+            "counterparty_legal_postal_code",
+            "counterparty_legal_country",
+            "counterparty_legal_phone"
+        ]
 
 class TestUploadToS3:
 
-    @pytest.mark.skip('upload_to_s3 uploads a file to s3 with a correct key and in a correct format')
+    @pytest.mark.it('upload_to_s3 uploads a file to s3 with a correct key and in a correct format')
     def test_upload_to_s3(self, client):
-        # arrange
         bucket_name = "mock_bucket"
         table_name = "fact_sales_order"
         client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
@@ -234,25 +241,9 @@ class TestUploadToS3:
         
         df = transform_fact_sales_order(data_sales_order)
 
-        # parquet_output = convert_to_parquet(df)
+        path = upload_to_s3(df, bucket_name, table_name)    
 
-        # act
-
-        filepath = upload_to_s3(df, bucket_name, table_name)    
-
-        # assert
-        pd.read_parquet(filepath, engine="pyarrow")
-
-
-
-# we want to check that the file saved in s3 is a parquet file
-# we can do it by inspecting the metadata by the code below
-        # response = client.get_object(Bucket=bucket_name, Key=key)
-
-        # with BytesIO() as f:
-        #     f.write(response["Body"].read())
+        response = wr.s3.read_parquet([path])
         
-        # metadata = pyarrow.parquet.read_metadata(f)
-        # assert metadata.num_columns == 15
-
+        assert response.columns.tolist() == ['sales_record_id', 'sales_order_id', 'created_date',         'created_time', 'last_updated_date', 'last_updated_time', 'sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id', 'design_id', 'agreed_payment_date', 'agreed_delivery_date', 'agreed_delivery_location_id']
 

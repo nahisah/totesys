@@ -3,7 +3,7 @@ import json
 import os
 import pandas as pd
 from datetime import datetime, timezone
-import s3fs
+import awswrangler as wr
 from currency_codes import get_currency_by_code
 
 def get_table_data_from_ingest_bucket(table_name, bucket_name):
@@ -148,18 +148,60 @@ def transform_dim_date(transformed_fact_sales_data):
     df["quarter"] = pd.to_datetime(df["date_id"]).dt.quarter
     
     return df
+
+def transform_dim_staff(staff, department):
+    staff_df = pd.DataFrame(staff)
+    department_df = pd.DataFrame(department)
     
-
-
-
-def convert_to_parquet(table_df=pd.DataFrame):
+    del staff_df["created_at"]
+    del staff_df["last_updated"]
+    del department_df["created_at"]
+    del department_df["last_updated"]
+    del department_df["manager"]
     
-    parquet_file = table_df.to_parquet(path=None, index=False, engine='pyarrow')
+    df = pd.merge(staff_df, department_df, on="department_id", how="left")
+    
+    del df["department_id"]
+    columns_in_order = [
+        "staff_id",
+        "first_name",
+        "last_name",
+        "department_name", 
+        "location", 
+        "email_address"
+    ]
+    df = df[columns_in_order]
+    return df
 
-    return parquet_file
+def transform_dim_counterparty(counterparty_data, address_data):
+    counterparty_df = pd.DataFrame(counterparty_data)
+    address_df = pd.DataFrame(address_data)
+    counterparty_df = counterparty_df.rename(columns={'legal_address_id': 'address_id'})
+    df = pd.merge(counterparty_df, address_df, on="address_id", how="left")
+    
+    df = df[[
+        "counterparty_id", 
+        "counterparty_legal_name", 
+        "address_line_1",
+        "address_line_2",
+        "district",
+        "city",
+        "postal_code",
+        "country",
+        "phone"
+    ]]
+    df = df.rename(columns={
+        'address_line_1': 'counterparty_legal_address_line_1',
+        "address_line_2": "counterparty_legal_address_line_2",
+        "district": "counterparty_legal_district",
+        "city": "counterparty_legal_city",
+        "postal_code": "counterparty_legal_postal_code",
+        "country": "counterparty_legal_country",
+        "phone": "counterparty_legal_phone"
+    })
 
-
-
+    return df
+    
 def upload_to_s3(dataframe, bucket_name, table_name):
     """
     This function takes a json object and uploads it to a given bucket with a key that includes table name and datestamp
@@ -172,9 +214,6 @@ def upload_to_s3(dataframe, bucket_name, table_name):
     Returns:
         A message confirming successful upload and showing the full key    
     """
-    # s3 = s3fs.S3FileSystem()
-
-    # s3 = boto3.client('s3')
     now = datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
     timestamp = now.strftime("%Y%m%dT%H%M%SZ")
@@ -183,14 +222,10 @@ def upload_to_s3(dataframe, bucket_name, table_name):
     
     s3_url = f's3://{bucket_name}/{key}'
     try:
-        dataframe.to_parquet(s3_url)
-        # with s3.open(f"{bucket_name}/{key}", "wb") as f:
-        #     dataframe.to_parquet(f)
-        # s3.put_object(
-        #     Bucket=bucket_name,
-        #     Key=key,
-        #     Body=data
-        # )
+        wr.s3.to_parquet(
+            df=dataframe,
+            path=s3_url,
+        )
 
         message = f"s3://{bucket_name}/{key}"
         print(message)
