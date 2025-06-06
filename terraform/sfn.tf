@@ -47,8 +47,8 @@ resource "aws_sfn_state_machine" "totesys_state_machine" {
             "Lambda.SdkClientException",
             "Lambda.TooManyRequestsException"
           ],
-          "IntervalSeconds": 1,
-          "MaxAttempts": 3,
+          "IntervalSeconds": 10,
+          "MaxAttempts": 1,
           "BackoffRate": 2,
           "JitterStrategy": "FULL"
         }
@@ -60,3 +60,4 @@ resource "aws_sfn_state_machine" "totesys_state_machine" {
 }
 EOF
 }
+
