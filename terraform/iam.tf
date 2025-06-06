@@ -119,6 +119,13 @@ data "aws_iam_policy_document" "transform_s3_document" {
       "${aws_s3_bucket.code-bucket.arn}/*",
       "${aws_s3_bucket.ingestion-bucket.arn}/*"
     ]
+  
+  }
+  statement {
+    actions = ["s3:ListBucket"]
+    resources = [
+      "${aws_s3_bucket.ingestion-bucket.arn}"
+    ]
   }
 }
 
