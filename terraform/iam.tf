@@ -42,6 +42,10 @@ data "aws_iam_policy_document" "ingestion_s3_document" { ## Set permissions for 
     actions   = ["secretsmanager:GetSecretValue"]
     resources = ["arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"]
   }
+  statement{
+    actions = ["states:ListExecutions"]
+    resources = ["arn:aws:states:eu-west-2:389125938424:stateMachine:${aws_sfn_state_machine.totesys_state_machine.name}"]
+  }
 }
 
 data "aws_iam_policy_document" "ingestion_cw_document" {
