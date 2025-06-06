@@ -124,9 +124,11 @@ def test_correct_upload(mock_client):
     table_name = "currency"
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
-    timestamp = now.strftime("%Y%m%dT%H%MZ")
-    expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
+    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
+    timestamp_2 = (now -datetime.timedelta(seconds=1)).strftime("%Y%m%dT%H%M%SZ")
 
+    expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
+    expected_key_2 = f"{table_name}/{date_path}/{table_name}-{timestamp_2}.json"
     # act
     upload_response = upload_to_s3(input_json, bucket_name, table_name)
 
@@ -135,9 +137,9 @@ def test_correct_upload(mock_client):
 
     actual_key = response["Contents"][0]["Key"]
 
-    assert actual_key == expected_key
+    assert actual_key in {expected_key, expected_key_2}
 
-    assert upload_response == f"Uploaded to s3://{bucket_name}/{expected_key}"
+    assert upload_response in {f"Uploaded to s3://{bucket_name}/{expected_key}",f"Uploaded to s3://{bucket_name}/{expected_key_2}"}
 
 
 @pytest.mark.it(
@@ -183,7 +185,7 @@ def test_ingestion_works(mock_client):
     )
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
-    timestamp = now.strftime("%Y%m%dT%H%MZ")
+    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
     expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     # act
@@ -206,7 +208,7 @@ def test_sales_order_ingestion(mock_client):
     bucket_name = "mock_bucket_3"
     now = datetime.datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
-    timestamp = now.strftime("%Y%m%dT%H%MZ")
+    timestamp = now.strftime("%Y%m%dT%H%M%SZ")
     expected_key = f"{table_name}/{date_path}/{table_name}-{timestamp}.json"
 
     # act
