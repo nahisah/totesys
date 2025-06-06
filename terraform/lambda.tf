@@ -20,7 +20,7 @@ resource "aws_lambda_function" "ingestion_lambda" {
 
 resource "aws_lambda_function" "transform_lambda" {
 
-  count         = var.deploy_transform_lambda_bool ? 1 : 0
+  count         = var.deploy_lambda_bool ? 1 : 0
   function_name = "transform_lambda"
   s3_bucket     = aws_s3_bucket.code-bucket.bucket
   s3_key        = "transform-lambda.zip"

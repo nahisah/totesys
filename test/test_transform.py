@@ -11,7 +11,7 @@ def test_mock_credentials():
     os.environ["AWS_ACCESS_KEY_ID"] = "mock_access_key"
     os.environ["AWS_SECRET_ACCESS_KEY"] = "aws_secret_key"
     os.environ["AWS_SESSION_TOKEN"] = "0123"
-    os.environ["BUCKET_NAME"] = "mock_bucket"
+    os.environ["INGESTION_BUCKET_NAME"] = "mock_bucket"
 
 @pytest.fixture
 def client(test_mock_credentials):

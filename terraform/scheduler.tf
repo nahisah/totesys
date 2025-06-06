@@ -67,7 +67,7 @@ resource "aws_sns_topic_subscription" "transform_email_alert" { #specify the 'su
 }
 
 resource "aws_cloudwatch_metric_alarm" "transform_error_alarm" {
-  count               = var.deploy_transform_lambda_bool ? 1 : 0
+  count               = var.deploy_lambda_bool ? 1 : 0
   alarm_name          = "TransformFailureAlarm"
   comparison_operator = "GreaterThanThreshold" #triggers alarm on anything greater than specified threshold
   evaluation_periods  = 1                      #i.e. with a period of 60 (1 minute), how many minutes are we looking at to trigger an alarm
