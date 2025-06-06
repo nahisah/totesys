@@ -2,6 +2,7 @@ import json
 import os
 import requests
 from src.ingestion.ingest import ingest
+import boto3
 
 def lambda_handler(event, context):
     """
@@ -14,6 +15,11 @@ def lambda_handler(event, context):
     A status code(500) signifying an unsuccessful attempt
     
     """
+    step_function = os.environ["STEP_MACHINE_ARN"]
+    client = boto3.client("stepfunctions")
+    response = client.start_execution(
+        stateMachineArn=step_function
+    )
     
     try:
         secret_name = "arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"

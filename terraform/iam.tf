@@ -82,7 +82,7 @@ resource "aws_iam_role_policy_attachment" "ingestion_lambda_cw_policy_attachment
   role       = aws_iam_role.ingestion_lambda_role.name
   policy_arn = aws_iam_policy.ingestion_cw_policy.arn
 }
-
+# ~~~~~~~ TRANSFORM LAMBDA PERMISSIONS ~~~~~~~
 resource "aws_iam_role" "transform_lambda_role" {
   name               = "transform_lambda_role"
   assume_role_policy = <<EOF
@@ -165,6 +165,7 @@ resource "aws_iam_role_policy_attachment" "transform_lambda_cw_policy_attachment
   policy_arn = aws_iam_policy.transform_cw_policy.arn
 }
 
+# ~~~~~~~ STEP FUNCTION PERMISSIONS ~~~~~~~
 resource "aws_iam_role" "sfn_role" {
   name               = "sfn_role"
   assume_role_policy = <<EOF
@@ -210,6 +211,28 @@ resource "aws_iam_role_policy_attachment" "sfn_lambda_policy_attachment" {
   policy_arn = aws_iam_policy.sfn_lambda_policy.arn
 }
 
+resource "aws_iam_policy" "step_function_execution_policy" {
+  name = "IngestionLambdaSFExecutionPermission"
+  description = "Gives ingestion lambda permission to start step function"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "states:StartExecution"
+        Resource = "${aws_sfn_state_machine.totesys_state_machine.arn}"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_SF_execution_attachment"{
+  role = aws_iam_role.ingestion_lambda_role.name
+  policy_arn = aws_iam_policy.step_function_execution_policy.arn
+}
+
+# ~~~~~~~ INGESTION LAMBDA NOTIFICATION PERMISSIONS, maybe obsolete ~~~~~~~
 resource "aws_lambda_permission" "allow_bucket_for_ingestion" {
   count         = var.deploy_lambda_bool ? 1 : 0
   statement_id  = "AllowExecutionFromS3Bucket"

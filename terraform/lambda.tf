@@ -13,6 +13,7 @@ resource "aws_lambda_function" "ingestion_lambda" {
   environment {
     variables = {
       INGESTION_BUCKET_NAME = aws_s3_bucket.ingestion-bucket.bucket
+      STEP_MACHINE_ARN = aws_sfn_state_machine.totesys_state_machine.arn
     }
   }
 }
