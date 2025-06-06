@@ -60,7 +60,9 @@ def lambda_handler(event, context):
             
         step_function = os.environ["STEP_MACHINE_ARN"]
         client = boto3.client("stepfunctions",region_name="eu-west-2")
-        client.start_execution(stateMachineArn=step_function)
+        sf_running_check = client.list_executions(stateMachineArn=os.environ["STEP_MACHINE_ARN"],statusFilter="RUNNING")
+        if not sf_running_check:
+            client.start_execution(stateMachineArn=step_function)
         
         return {"statusCode": response.status_code}
 
