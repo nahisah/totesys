@@ -111,8 +111,8 @@ class TestTransformTables:
         # assert
         assert isinstance(actual["created_date"][0], datetime.date)
         assert isinstance(actual["last_updated_date"][0], datetime.date)
-        assert isinstance(actual["created_time"][0], pd.Timestamp)
-        assert isinstance(actual["last_updated_time"][0], pd.Timestamp)
+        assert isinstance(actual["agreed_payment_date"][0], datetime.date)
+        assert isinstance(actual["agreed_delivery_date"][0], datetime.date)
 
     @pytest.mark.it('transform_dim_design returns a dataframe with columns as specified in the warehouse design')
     def test_dim_design(self):

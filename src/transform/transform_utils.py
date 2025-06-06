@@ -81,8 +81,6 @@ def transform_fact_sales_order(data_sales_order):
 
     df["created_date"] = pd.to_datetime(df['created_date'], format="%Y-%m-%d").dt.date
     df["last_updated_date"] = pd.to_datetime(df['last_updated_date'], format="%Y-%m-%d").dt.date
-    df["created_time"] = pd.to_datetime(df['created_time'], format="mixed")
-    df["last_updated_time"] = pd.to_datetime(df['last_updated_time'], format="mixed")
     df["agreed_payment_date"] = pd.to_datetime(df['agreed_payment_date'], format="%Y-%m-%d").dt.date
     df["agreed_delivery_date"] = pd.to_datetime(df['agreed_delivery_date'], format="%Y-%m-%d").dt.date
 
@@ -98,7 +96,7 @@ def transform_fact_sales_order(data_sales_order):
     columns_in_order = ['sales_record_id', 'sales_order_id', 'created_date',         'created_time', 'last_updated_date', 'last_updated_time', 'sales_staff_id', 'counterparty_id', 'units_sold', 'unit_price', 'currency_id', 'design_id', 'agreed_payment_date', 'agreed_delivery_date', 'agreed_delivery_location_id']
 
     df = df[columns_in_order]
-
+    print(df)
     return df
 
 def transform_dim_design(design_data):
