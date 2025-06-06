@@ -1,17 +1,21 @@
-from src.transform.transform_utils import get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket, transform_fact_sales_order, convert_to_parquet, upload_to_s3
+from src.transform.transform_utils import get_table_data_from_ingest_bucket, get_all_table_data_from_ingest_bucket, transform_fact_sales_order, convert_to_parquet, upload_to_s3, transform_dim_design, transform_dim_currency, transform_dim_location, transform_dim_date
 import pytest
 import os
 from moto import mock_aws
 import boto3
 from datetime import datetime, timezone
+import datetime
 import json
 import pandas as pd
 import re
 import pyarrow
+from io import BytesIO
+import s3fs
+import numpy as np
 
 
 @pytest.fixture
-def test_mock_credentials():
+def test_mock_credentials(autouse=True):
     os.environ["AWS_ACCESS_KEY_ID"] = "mock_access_key"
     os.environ["AWS_SECRET_ACCESS_KEY"] = "aws_secret_key"
     os.environ["AWS_SESSION_TOKEN"] = "0123"
@@ -84,7 +88,7 @@ class TestGetAllTableDataFromIngestBucket:
 
 class TestTransformTables:
 
-    @pytest.mark.it('transform_fact_sales_order returns a dataframe with columns as specified in the warehourse design')
+    @pytest.mark.it('transform_fact_sales_order returns a dataframe with columns as specified in the warehouse design')
     def test_fact_sales_order(self):
         # arrange
         with open("data/test_data/sales_order-20250604T102926Z.json", 'r') as file:
@@ -109,12 +113,85 @@ class TestTransformTables:
         actual = transform_fact_sales_order(data_sales_order)
 
         # assert
+        assert isinstance(actual["created_date"][0], datetime.date)
+        assert isinstance(actual["last_updated_date"][0], datetime.date)
+        assert isinstance(actual["created_time"][0], pd.Timestamp)
+        assert isinstance(actual["last_updated_time"][0], pd.Timestamp)
 
-        assert re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', actual['created_date'][0] )
-        assert re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', actual['last_updated_date'][0] )
-        assert re.match(r'^[0-9]{2}:[0-9]{2}:[0-9]{2}', actual['created_time'][0] )
-        assert re.match(r'^[0-9]{2}:[0-9]{2}:[0-9]{2}', actual['last_updated_time'][0] )
+    @pytest.mark.it('transform_dim_design returns a dataframe with columns as specified in the warehouse design')
+    def test_dim_design(self):
+        with open("data/test_data/design-20250605T134756Z.json", 'r') as file:
+            data = json.load(file)
 
+        # act
+        actual = transform_dim_design(data)
+
+        # assert
+        assert isinstance(actual, pd.DataFrame)
+
+        assert actual.columns.tolist() == [
+            "design_id",
+            "design_name",
+            "file_location",
+            "file_name"
+        ]
+
+    @pytest.mark.it('transform_dim_currency returns a dataframe with columns as specified in the warehouse design')
+    def test_dim_currency(self):
+        with open("data/test_data/currency-20250605T134850Z.json", 'r') as file:
+            data = json.load(file)
+
+        # act
+        actual = transform_dim_currency(data)
+
+        # assert
+        assert isinstance(actual, pd.DataFrame)
+        assert actual.columns.tolist() == [
+            "currency_id",
+            "currency_code",
+            "currency_name"
+        ]
+    
+    @pytest.mark.it('transform_dim_location returns a dataframe with columns as specified in the warehouse design')
+    def test_dim_location(self):
+        with open("data/test_data/address-20250605T134757Z.json", 'r') as file:
+            data = json.load(file)
+
+        # act
+        actual = transform_dim_location(data)
+
+        # assert
+        assert isinstance(actual, pd.DataFrame)
+        assert actual.columns.tolist() == [
+            "location_id",
+            "address_line_1",
+            "address_line_2",
+            "district",
+            "city",
+            "postal_code",
+            "country",
+            "phone"
+        ]
+    
+    @pytest.mark.it('transform_dim_dates returns a dataframe with columns as specified in the warehouse design')
+    def test_dim_dates(self):
+        with open("data/test_data/sales_order-20250604T102926Z.json", 'r') as file:
+            data_sales_order = json.load(file)
+        transformed_data = transform_fact_sales_order(data_sales_order)
+        
+        actual = transform_dim_date(transformed_data)
+        
+        assert isinstance(actual, pd.DataFrame)
+        assert actual.columns.tolist() == [
+            "date_id",
+            "year",
+            "month",
+            "day",
+            "day_of_week",
+            "day_name",
+            "month_name",
+            "quarter"
+        ]
 
 
 class TestConvertToParquet:
@@ -149,30 +226,33 @@ class TestUploadToS3:
     def test_upload_to_s3(self, client):
         # arrange
         bucket_name = "mock_bucket"
+        table_name = "fact_sales_order"
         client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
-        key = 'mock_key' 
+        
         with open("data/test_data/sales_order-20250604T102926Z.json", 'r') as file:
             data_sales_order = json.load(file)
         
         df = transform_fact_sales_order(data_sales_order)
 
-        parquet_output = convert_to_parquet(df)
+        # parquet_output = convert_to_parquet(df)
 
         # act
 
-        upload_to_s3(parquet_output, bucket_name, key)    
+        filepath = upload_to_s3(df, bucket_name, table_name)    
 
         # assert
+        pd.read_parquet(filepath, engine="pyarrow")
+
 
 
 # we want to check that the file saved in s3 is a parquet file
 # we can do it by inspecting the metadata by the code below
-        response = client.get_object(Bucket=bucket_name, Key=key)
+        # response = client.get_object(Bucket=bucket_name, Key=key)
 
-        pyarrow.parquet.read_metadata(response['Body'])
-
-
-
-
+        # with BytesIO() as f:
+        #     f.write(response["Body"].read())
+        
+        # metadata = pyarrow.parquet.read_metadata(f)
+        # assert metadata.num_columns == 15
 
 
