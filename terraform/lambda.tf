@@ -30,6 +30,7 @@ resource "aws_lambda_function" "transform_lambda" {
   layers    = ["arn:aws:lambda:eu-west-2:336392948345:layer:AWSSDKPandas-Python313:2"]
   timeout = 30
   runtime = "python3.13"
+  memory_size = 512
 
   environment {
     variables = {

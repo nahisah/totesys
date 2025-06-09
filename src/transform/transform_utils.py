@@ -20,8 +20,6 @@ def get_table_data_from_ingest_bucket(table_name, bucket_name):
     Raises: 
         RuntimeError on error
     """
-    # TODO: check what happens if multiple objects get uploaded 
-    # to bucket by ingestion process
     try:
         client = boto3.client("s3")
         listing_response = client.list_objects_v2(
