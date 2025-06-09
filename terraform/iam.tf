@@ -197,8 +197,12 @@ data "aws_iam_policy_document" "sfn_lambda_document" {
     effect  = "Allow"
     actions = ["lambda:InvokeFunction"]
     resources = [
+      
+      "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:load_lambda:*",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:transform_lambda:*",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:ingestion_lambda:*",
+      
+      "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:load_lambda",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:transform_lambda",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:ingestion_lambda"
     ]
