@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from src.ingestion.ingest import ingest
+# from src.ingestion.ingest import ingest
 import boto3
 
 
@@ -44,15 +44,15 @@ def lambda_handler(event, context):
         os.environ["PORT"] = secret["port"]
         os.environ["HOST"] = secret["host"]
 
-        table_names = {
-            "fact_sales_order",
-            "dim_design",
-            "dim_currency",
-            "dim_location",
-            "dim_date",
-            "dim_staff",
-            "dim_counterparty"
-        }
+        # table_names = {
+        #     "fact_sales_order",
+        #     "dim_design",
+        #     "dim_currency",
+        #     "dim_location",
+        #     "dim_date",
+        #     "dim_staff",
+        #     "dim_counterparty"
+        # }
         # Only 7 out of 11 tables included to match mock database
         # To extract ALL tables include missing table names
         # for table in table_names:

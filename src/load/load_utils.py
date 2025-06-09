@@ -1,6 +1,6 @@
 import boto3
 import awswrangler as wr
-from utils.db_connection import create_conn,close_conn
+# from utils.db_connection import create_conn,close_conn
 
 
 
@@ -19,10 +19,10 @@ def accessing_files_from_processed_bucket(table_name,bucket_name):
     except Exception as e:
         raise RuntimeError(f"Retrieval of data from processed bucket failed: {e}")
     
-def load_data_frames_into_datawarehouse(df):
+# def load_data_frames_into_datawarehouse(df):
      
-     conn = create_conn()
-     query = ""
-     if conn:
-          conn.run()
+#      conn = create_conn()
+#      query = ""
+#      if conn:
+#           conn.run()
           
