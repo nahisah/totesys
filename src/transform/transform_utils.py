@@ -39,7 +39,6 @@ def get_table_data_from_ingest_bucket(table_name, bucket_name):
     except Exception as e:
         raise RuntimeError(f"Retrieval of data from ingest bucket failed: {e}")
 
-
 def get_all_table_data_from_ingest_bucket():
     """
     Retrieves the most recent data for each table stored in the ingestion s3 bucket.
@@ -58,12 +57,11 @@ def get_all_table_data_from_ingest_bucket():
     ]
     ingested_data = {}
     for table_name in table_names:
-        ingested_data[table_name] = get_table_data_from_ingest_bucket(table_name, os.environ["BUCKET_NAME"])
+        ingested_data[table_name] = get_table_data_from_ingest_bucket(table_name, os.environ["INGESTION_BUCKET_NAME"])
     
     return ingested_data
 
-
-def transform_fact_sales_order(data_sales_order):
+def transform_fact_sales_order(sales_order_data):
     """
     Transforms data from the sales_order table into the format required for fact_sales_order
 
@@ -74,7 +72,7 @@ def transform_fact_sales_order(data_sales_order):
     Returns:
     a dataframe in the required format
     """
-    df = pd.DataFrame(data_sales_order)
+    df = pd.DataFrame(sales_order_data)
 
     df[["created_date","created_time"]] = df['created_at'].str.split('T', expand = True)
     df[["last_updated_date","last_updated_time"]] = df['last_updated'].str.split('T', expand = True)
@@ -100,7 +98,15 @@ def transform_fact_sales_order(data_sales_order):
     return df
 
 def transform_dim_design(design_data):
+    """
+    Transforms data from the design table into the format required for dim_design.
 
+    Arguments:
+    data in a form of a list of dictionaries representing the contents of the design table
+
+    Returns:
+    a dataframe in the required format
+    """
     df = pd.DataFrame(design_data)
     del df["created_at"]
     del df["last_updated"]
@@ -108,6 +114,15 @@ def transform_dim_design(design_data):
     return df
 
 def transform_dim_currency(currency_data):
+    """
+    Transforms data from the currency table into the format required for dim_currency.
+
+    Arguments:
+    data in a form of a list of dictionaries representing the contents of the currency table
+
+    Returns:
+    a dataframe in the required format
+    """
     df = pd.DataFrame(currency_data)
     del df["created_at"]
     del df["last_updated"]
@@ -117,6 +132,15 @@ def transform_dim_currency(currency_data):
     return df
 
 def transform_dim_location(location_data):
+    """
+    Transforms data from the address table into the format required for dim_location
+
+    Arguments:
+    data in a form of a list of dictionaries representing the contents of the address table
+
+    Returns:
+    a dataframe in the required format
+    """
     df = pd.DataFrame(location_data)
     del df["created_at"]
     del df["last_updated"]
@@ -127,7 +151,13 @@ def transform_dim_location(location_data):
 
 def transform_dim_date(transformed_fact_sales_data):
     """
-    Function requires the dataframe from transform_fact_sales_order as an argument.
+    Transforms data from the sales_order table into the format required for fact_sales_order
+
+    Arguments:
+    data in a form of a dataframe from transform_fact_sales_order as an argument.
+
+    Returns:
+    a dataframe in the required format
     """
     old_df = transformed_fact_sales_data
     dates_1 = old_df["created_date"]
@@ -147,9 +177,18 @@ def transform_dim_date(transformed_fact_sales_data):
     
     return df
 
-def transform_dim_staff(staff, department):
-    staff_df = pd.DataFrame(staff)
-    department_df = pd.DataFrame(department)
+def transform_dim_staff(staff_data, department_data):
+    """
+    Transforms data from the staff and department tables into the format required for dim_staff.
+
+    Arguments:
+    data in a form of a list of dictionaries representing the contents of the staff and department tables.
+
+    Returns:
+    a dataframe in the required format
+    """
+    staff_df = pd.DataFrame(staff_data)
+    department_df = pd.DataFrame(department_data)
     
     del staff_df["created_at"]
     del staff_df["last_updated"]
@@ -172,6 +211,15 @@ def transform_dim_staff(staff, department):
     return df
 
 def transform_dim_counterparty(counterparty_data, address_data):
+    """
+    Transforms data from the counterparty and address tables into the format required for dim_counterparty
+
+    Arguments:
+    data in a form of a list of dictionaries representing the contents of the counterparty and address tables.
+
+    Returns:
+    a dataframe in the required format
+    """
     counterparty_df = pd.DataFrame(counterparty_data)
     address_df = pd.DataFrame(address_data)
     counterparty_df = counterparty_df.rename(columns={'legal_address_id': 'address_id'})
