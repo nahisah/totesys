@@ -1,7 +1,5 @@
 import awswrangler as wr
-import pandas as pd
 import os
-from datetime import datetime
 
 os.environ["TRANSFORM_BUCKET_NAME"] = "processed-bucket"
 def get_parquet_data_from_processed_bucket(table_name):
