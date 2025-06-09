@@ -39,3 +39,24 @@ resource "aws_lambda_function" "transform_lambda" {
     }
   }
 }
+
+resource "aws_lambda_function" "load_lambda" {
+
+  count         = var.deploy_lambda_bool ? 1 : 0
+  function_name = "load_lambda"
+  s3_bucket     = aws_s3_bucket.code-bucket.bucket
+  s3_key        = "load-lambda.zip"
+  role          = aws_iam_role.load_lambda_role.arn
+  handler       = "load_lambda.lambda_handler"
+  timeout = 30
+
+
+
+  runtime = "python3.9"
+
+  environment {
+    variables = {
+      TRANSFORM_BUCKET_NAME = aws_s3_bucket.processed-bucket.bucket
+    }
+  }
+}

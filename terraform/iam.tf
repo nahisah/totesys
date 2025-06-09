@@ -197,8 +197,12 @@ data "aws_iam_policy_document" "sfn_lambda_document" {
     effect  = "Allow"
     actions = ["lambda:InvokeFunction"]
     resources = [
+      
+      "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:load_lambda:*",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:transform_lambda:*",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:ingestion_lambda:*",
+      
+      "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:load_lambda",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:transform_lambda",
       "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:ingestion_lambda"
     ]
@@ -236,48 +240,80 @@ resource "aws_iam_role_policy_attachment" "lambda_SF_execution_attachment"{
   policy_arn = aws_iam_policy.step_function_execution_policy.arn
 }
 
-# # ~~~~~~~ INGESTION LAMBDA NOTIFICATION PERMISSIONS, maybe obsolete ~~~~~~~
-# resource "aws_lambda_permission" "allow_bucket_for_ingestion" {
-#   count         = var.deploy_lambda_bool ? 1 : 0
-#   statement_id  = "AllowExecutionFromS3Bucket"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.ingestion_lambda[0].arn
-#   principal     = "s3.amazonaws.com"
-#   source_arn    = aws_s3_bucket.code-bucket.arn
-# }
+# ~~~~~~~ LOAD LAMBDA PERMISSIONS ~~~~~~~
 
-# resource "aws_s3_bucket_notification" "bucket_notification_for_ingestion" {
-#   count  = var.deploy_lambda_bool ? 1 : 0
-#   bucket = aws_s3_bucket.code-bucket.id
+resource "aws_iam_role" "load_lambda_role" {
+  name               = "load_lambda_role"
+  assume_role_policy = <<EOF
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "sts:AssumeRole"
+                ],
+                "Principal": {
+                    "Service": [
+                        "lambda.amazonaws.com"
+                    ]
+                }
+            }
+        ]
+    }
+    EOF
+}
 
-#   lambda_function {
-#     lambda_function_arn = aws_lambda_function.ingestion_lambda[0].arn
-#     events              = ["s3:ObjectCreated:*"]
-#     filter_prefix       = "AWSLogs/"
-#     filter_suffix       = ".log"
-#   }
-#   depends_on = [aws_lambda_permission.allow_bucket_for_ingestion]
-# }
+data "aws_iam_policy_document" "load_s3_document" {
+  
+  statement {
+    actions = ["s3:GetObject"]
+    resources = [
+      "${aws_s3_bucket.code-bucket.arn}/*",
+      "${aws_s3_bucket.processed-bucket.arn}/*"
+    ]
+  
+  }
+  statement {
+    actions = ["s3:ListBucket"]
+    resources = [
+      "${aws_s3_bucket.processed-bucket.arn}"
+    ]
+  }
+}
 
+data "aws_iam_policy_document" "load_cw_document" {
+  statement {
+    actions = ["logs:CreateLogGroup"]
+    resources = [
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
+    ]
+  }
+  statement {
+    actions = ["logs:CreateLogStream", "logs:PutLogEvents"]
+    resources = [
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/load_lambda:*"
+    ]
+  }
+}
 
-# resource "aws_lambda_permission" "allow_bucket_for_transform" {
-#   count         = var.deploy_transform_lambda_bool ? 1 : 0
-#   statement_id  = "AllowExecutionFromS3Bucket"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.transform_lambda[0].arn
-#   principal     = "s3.amazonaws.com"
-#   source_arn    = aws_s3_bucket.code-bucket.arn
-# }
+resource "aws_iam_policy" "load_s3_policy" {
+  name   = "load_s3_policy_lambda_role"
+  policy = data.aws_iam_policy_document.load_s3_document.json
 
-# resource "aws_s3_bucket_notification" "bucket_notification_for_transform" {
-#   count  = var.deploy_transform_lambda_bool ? 1 : 0
-#   bucket = aws_s3_bucket.code-bucket.id
+}
 
-#   lambda_function {
-#     lambda_function_arn = aws_lambda_function.transform_lambda[0].arn
-#     events              = ["s3:ObjectCreated:*"]
-#     filter_prefix       = "AWSLogs/"
-#     filter_suffix       = ".log"
-#   }
-#   depends_on = [aws_lambda_permission.allow_bucket_for_transform]
-# }
+resource "aws_iam_policy" "load_cw_policy" {
+  name   = "load_cw_policy_role"
+  policy = data.aws_iam_policy_document.load_cw_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "load_lambda_s3_policy_attachment" {
+  role       = aws_iam_role.load_lambda_role.name
+  policy_arn = aws_iam_policy.load_s3_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "load_lambda_cw_policy_attachment" {
+  role       = aws_iam_role.load_lambda_role.name
+  policy_arn = aws_iam_policy.load_cw_policy.arn
+}
