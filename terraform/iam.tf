@@ -143,7 +143,7 @@ data "aws_iam_policy_document" "transform_cw_document" {
   statement {
     actions = ["logs:CreateLogStream", "logs:PutLogEvents"]
     resources = [
-      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/ingestion_lambda:*"
+      "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/transform_lambda:*"
     ]
   }
 }
