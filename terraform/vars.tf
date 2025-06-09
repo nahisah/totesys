@@ -6,5 +6,7 @@ variable "region_name" {
 
 variable "deploy_lambda_bool" {
   default = false
-  description = "whether or not to deploy lambda function"
+  description = "whether or not to deploy ingestion lambda function"
   }
+
+  

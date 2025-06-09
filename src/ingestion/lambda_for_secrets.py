@@ -4,6 +4,7 @@ import os
 import requests
 
 from src.ingestion.ingest import ingest
+import boto3
 
 
 def lambda_handler(event, context):
@@ -17,6 +18,9 @@ def lambda_handler(event, context):
     A status code(500) signifying an unsuccessful attempt
 
     """
+
+    
+    
 
     try:
         secret_name = "arn:aws:secretsmanager:eu-west-2:389125938424:secret:Totesys_DB_Credentials-4f8nsr"
@@ -52,8 +56,15 @@ def lambda_handler(event, context):
         # Only 7 out of 11 tables included to match mock database
         # To extract ALL tables include missing table names
         for table in table_names:
-            ingest(table, os.environ["BUCKET_NAME"])
-
+            ingest(table, os.environ["INGESTION_BUCKET_NAME"])
+            
+        step_function = os.environ["STEP_MACHINE_ARN"]
+        client = boto3.client("stepfunctions",region_name="eu-west-2")
+        sf_running = client.list_executions(stateMachineArn=os.environ["STEP_MACHINE_ARN"],statusFilter="RUNNING")
+        sf_running_check = sf_running.get("executions",[])
+        if not sf_running_check:
+            client.start_execution(stateMachineArn=step_function)
+        
         return {"statusCode": response.status_code}
 
     except Exception as e:
