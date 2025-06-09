@@ -29,7 +29,6 @@ class TestGetTableDataFromIngestBucket:
         bucket_name = "mock_bucket"
         client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint": "eu-west-2"})
         key = f"currency/2025/01/01/currency-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
-""
         client.put_object(
             Body=json.dumps([{
                 "currency_id": 1,
