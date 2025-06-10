@@ -86,3 +86,25 @@ def load_dim_location_into_warehouse(df):
             close_conn(conn)
 
 
+def load_dim_currency_into_warehouse(df):
+    conn = create_conn()
+    if conn:
+        try:
+            query = f"""
+            INSERT INTO dim_currency
+            VALUES 
+            """
+
+            for _, row in df.iterrows():
+                query += f"({row["currency_id"]}, $${row["currency_code"]}$$, $${row["currency_name"]}$$), "
+            query = query[:-2]
+            query += " ON CONFLICT (currency_id) DO NOTHING;"
+            
+            conn.run(query)
+        
+        except Exception as e:
+            raise RuntimeError(f"Database query failed: {e}")
+        
+        finally:
+            close_conn(conn)
+
