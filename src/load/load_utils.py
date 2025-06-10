@@ -62,4 +62,27 @@ def load_dim_staff_into_warehouse(df):
         
         finally:
             close_conn(conn)
-          
+
+def load_dim_location_into_warehouse(df):
+    conn = create_conn()
+    if conn:
+        try:
+            query = f"""
+            INSERT INTO dim_location
+            VALUES 
+            """
+
+            for _, row in df.iterrows():
+                query += f"({row["location_id"]}, $${row["address_line_1"]}$$, $${row["address_line_2"]}$$, $${row["district"]}$$, $${row["city"]}$$, $${row["postal_code"]}$$, $${row["country"]}$$, $${row["phone"]}$$), "
+            query = query[:-2]
+            query += " ON CONFLICT (location_id) DO NOTHING;"
+            
+            conn.run(query)
+        
+        except Exception as e:
+            raise RuntimeError(f"Database query failed: {e}")
+        
+        finally:
+            close_conn(conn)
+
+
