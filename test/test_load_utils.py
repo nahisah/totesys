@@ -47,7 +47,7 @@ def get_rows_from_table(table_name):
 
 class TestAccesingFileFromProcessedBucket:
 
-    def test_resturns_a_pandas_data_frame(self, client):
+    def test_returns_a_pandas_data_frame(self, client):
         bucket_name = "mock_bucket"
         client.create_bucket(
             Bucket=bucket_name,
@@ -61,7 +61,7 @@ class TestAccesingFileFromProcessedBucket:
         response = accessing_files_from_processed_bucket("dim_currency", bucket_name)
         assert isinstance(response, pd.DataFrame)
 
-    def test_rasies_exception_on_failure_to_retrieve_file(self, client):
+    def test_raises_exception_on_failure_to_retrieve_file(self, client):
         bucket_name = "mock_bucket"
         client.create_bucket(
             Bucket=bucket_name,
@@ -337,3 +337,4 @@ class TestLoadDataFramesIntoWarehouse:
         load_fact_sales_order_into_warehouse(df_2)
 
         assert len(get_rows_from_table("fact_sales_order")) == 14581
+# NB: this last test needs a parquet file with updated data to be properly tested. Currently, one is not available.

@@ -55,13 +55,13 @@ def lambda_handler(event, context):
         # Only 7 out of 11 tables included to match mock database
         # To extract ALL tables include missing table names
         table_names = {
-            "fact_sales_order": load_fact_sales_order_into_warehouse,
             "dim_design": load_dim_design_into_warehouse,
             "dim_currency": load_dim_currency_into_warehouse,
             "dim_location": load_dim_location_into_warehouse,
             "dim_date": load_dim_dates_into_warehouse,
             "dim_staff": load_dim_staff_into_warehouse,
             "dim_counterparty": load_dim_counterparty_into_warehouse,
+            "fact_sales_order": load_fact_sales_order_into_warehouse,
         }
 
         for table_name in table_names:

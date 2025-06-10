@@ -217,5 +217,3 @@ def load_fact_sales_order_into_warehouse(df):
         finally:
             close_conn(conn)
 
-
-# NB: this last test needs a parquet file with updated data to be properly tested. Currently, one is not available.
