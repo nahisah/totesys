@@ -32,3 +32,9 @@ lint-code:
 run-checks: unit-test security-check
 
 run-all: create-environment install-requirements install-dev-tools run-checks format-code lint-code
+
+run-ingest-tests:
+	pytest -v test/test_ingest_*.py
+
+run-load-tests:
+	pytest -v test/test_load_*.py

@@ -1,19 +1,23 @@
 name: Totesys Test and Deploy
-run-name: ${{ github.actor }} has triggered testing on push 🚀
-on: [push]
-jobs:
-  postgres-run-tests:
 
+run-name: ${{ github.actor }} has triggered testing on push 🚀
+
+on:
+  push:
+
+jobs:
+
+  # 1️⃣ INGESTION TESTS
+  ingestion-tests:
     runs-on: ubuntu-latest
     environment: dev
-    
     services:
       postgres:
         image: postgres:latest
         env:
           POSTGRES_PASSWORD: postgres
         ports:
-        - 5432:5432
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -21,19 +25,18 @@ jobs:
           --health-retries 5
 
     steps:
-
-      - name: Check out repository code
+      - name: Checkout repository code
         uses: actions/checkout@v4
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
 
       - name: Install PostgreSQL client
         run: |
           sudo apt-get update
           sudo apt-get install --yes postgresql-client
-  
-      - name: Setup database
-        run: psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
-        env: 
+
+      - name: Setup mock_totesys database
+        run: |
+          psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
+        env:
           PGPASSWORD: postgres
 
       - name: Set up Python
@@ -41,141 +44,125 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run makefile
-        run: make run-all
-        env: 
-          DBUSER : postgres
-          DBNAME : mock_totesys
-          DBPASSWORD : postgres 
+      - name: Run ingestion tests
+        run: make run-ingest-tests
+        env:
+          DBUSER: postgres
+          DBNAME: mock_totesys
+          DBPASSWORD: postgres
+          HOST: localhost
           PORT: 5432
-          HOST : localhost
 
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-
-    
-  terraform:
-
-    name: 'Terraform'
+  # 2️⃣ LOAD TESTS
+  load-tests:
     runs-on: ubuntu-latest
     environment: dev
-    needs: postgres-run-tests
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+
+      - name: Setup mock_warehouse database
+        run: |
+          psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
+        env:
+          PGPASSWORD: postgres
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run load tests
+        run: make run-load-tests
+        env:
+          DBUSER: postgres
+          DBNAME: mock_warehouse
+          DBPASSWORD: postgres
+          HOST: localhost
+          PORT: 5432
+
+  # 3️⃣ TERRAFORM DEPLOYMENT
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    environment: dev
+    needs:
+      - ingestion-tests
+      - load-tests
     defaults:
       run:
         shell: bash
 
     steps:
-    - name: Checkout out repository code
-      uses: actions/checkout@v4
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4.1.0
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: "eu-west-2"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-    - name: Terraform Init
-      working-directory: terraform
-      run: terraform init
+      - name: Prepare lambda directories
+        run: |
+          mkdir -p lambda/ingestion/src/ingestion
+          mkdir -p lambda/transform/src/transform
+          mkdir -p lambda/load/src/load
 
-    - name: Terraform Format
-      working-directory: terraform
-      run: terraform fmt 
+      - name: Install dependencies
+        run: |
+          pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/
+          pip install -r src/transform/transform_requirements.txt -t lambda/transform/
+          pip install -r src/load/load_requirements.txt -t lambda/load/
 
-    - name: Terraform Plan
-      working-directory: terraform
-      run: terraform plan -input=false
+      - name: Copy source + utils
+        run: |
+          cp -r src/ingestion/* lambda/ingestion/src/ingestion/
+          cp -r src/transform/* lambda/transform/src/transform/
+          cp -r src/load/* lambda/load/src/load/
+          cp -r utils lambda/ingestion/
+          cp -r utils lambda/transform/
+          cp -r utils lambda/load/
 
+      - name: Zip up lambda packages
+        run: |
+          cd lambda/ingestion && zip -r ingestion.zip . && cd ../..
+          cd lambda/transform && zip -r transform-lambda.zip . && cd ../..
+          cd lambda/load && zip -r load-lambda.zip . && cd ../..
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
-    
-    - name: Prepare lambda directories
-      run: |
-        mkdir -p lambda/ingestion/src/ingestion
-        mkdir -p lambda/transform/src/transform
-        mkdir -p lambda/load/src/load
+      - name: Upload Lambda packages to S3
+        run: |
+          aws s3 cp ./lambda/ingestion/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
+          aws s3 cp ./lambda/transform/transform-lambda.zip "s3://$(terraform output -raw code_bucket_name)"
+          aws s3 cp ./lambda/load/load-lambda.zip "s3://$(terraform output -raw code_bucket_name)"
 
-    
-    - name: Install dependancies 
-      run: |
-        pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/
-        pip install -r src/transform/transform_requirements.txt -t lambda/transform/
-        pip install -r src/load/load_requirements.txt -t lambda/load/
-    
-    
-    - name: Copying source code and utils into lambda folder
-      run: |
-            cp -r src/ingestion/* lambda/ingestion/src/ingestion/
-            cp -r utils lambda/ingestion/
-            cp -r src/transform/* lambda/transform/src/transform
-            cp -r utils lambda/transform/
-            cp -r src/load/* lambda/load/src/load
-            cp -r utils lambda/load/
-
-            cp -r src/ingestion/* lambda/ingestion/
-            cp -r src/transform/* lambda/transform/
-            cp -r src/load/* lambda/load/
-
-
-    - name: Zip up lambda package
-      run: |
-            cd lambda/ingestion/
-            zip -r ingestion.zip .
-            cd ../transform
-            zip -r transform-lambda.zip .
-            cd ../load
-            zip -r load-lambda.zip . 
-    
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-2
-
-    - name: Terraform Apply Initial Steps
-      working-directory: terraform
-      # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: |
-          terraform apply -auto-approve -input=false
-          aws s3 cp ../lambda/ingestion/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
-          aws s3 cp ../lambda/transform/transform-lambda.zip "s3://$(terraform output -raw code_bucket_name)"
-          aws s3 cp ../lambda/load/load-lambda.zip "s3://$(terraform output -raw code_bucket_name)"
-
-    - name: Terraform Apply In Full
-      working-directory: terraform
-      # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: | 
-          terraform apply -auto-approve -input=false -var="deploy_lambda_bool=true" 
-# terraform apply -auto-approve -input=false -var="deploy_transform_lambda_bool=true"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve -input=false
 
   
 
