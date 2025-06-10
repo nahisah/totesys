@@ -33,5 +33,4 @@ def conn_to_warehouse():
             "statusCode": 500,
             "body": json.dumps({"message": "Error!", "error": str(e)}),
         }
-    print(os.environ["DBUSER"])
-conn_to_warehouse()
+    
