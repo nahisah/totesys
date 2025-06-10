@@ -1,6 +1,6 @@
 import boto3
 import awswrangler as wr
-# from utils.db_connection import create_conn,close_conn
+from utils.db_connection import create_conn,close_conn
 
 
 
@@ -19,31 +19,27 @@ def accessing_files_from_processed_bucket(table_name,bucket_name):
     except Exception as e:
         raise RuntimeError(f"Retrieval of data from processed bucket failed: {e}")
     
-def load_data_frames_into_datawarehouse(df):
-     
-    query = f"""
-    INSERT INTO dim_date
-    (date_id, year, month, day, day_of_week, day_name, month_name, quarter)
-    VALUES 
-    """
-    
-    for _, row in df.iterrows():
-        query += f"({row["date_id"]}, {row["year"]}, {row["month"]}, {row["day"]}, {row["day_of_week"]}, {row["day_name"]}, {row["month_name"]}, {row["quarter"]}), "
-    query = query[:-2]
-    query += ";"
-    
-    print(query)
-     
-    # conn = create_conn()
-    # if conn:
-    #     try:
-    #         conn.run(query)
+def load_dim_dates_into_warehouse(df):
+    conn = create_conn()
+    if conn:
+        try:
+            query = f"""
+            INSERT INTO dim_date
+            (date_id, year, month, day, day_of_week, day_name, month_name, quarter)
+            VALUES 
+            """
+
+            for _, row in df.iterrows():
+                query += f"('{row["date_id"]}', {row["year"]}, {row["month"]}, {row["day"]}, {row["day_of_week"]}, '{row["day_name"]}', '{row["month_name"]}', {row["quarter"]}), "
+            query = query[:-2]
+            query += "ON CONFLICT (date_id) DO NOTHING;"
+            
+            conn.run(query)
         
+        except Exception as e:
+            raise RuntimeError(f"Database query failed: {e}")
         
-    #     except:
-    #         pass
-        
-    #     finally:
-    #         close_conn(conn)
+        finally:
+            close_conn(conn)
              
           
