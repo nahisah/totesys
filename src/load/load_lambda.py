@@ -3,7 +3,16 @@ import os
 
 import requests
 
-# from src.ingestion.ingest import ingest
+from src.load.load_utils import (
+    load_dim_staff_into_warehouse,
+    load_dim_counterparty_into_warehouse,
+    load_dim_currency_into_warehouse,
+    load_dim_dates_into_warehouse,
+    load_dim_design_into_warehouse,
+    load_dim_location_into_warehouse,
+    load_fact_sales_order_into_warehouse,
+    accessing_files_from_processed_bucket,
+)
 import boto3
 
 
@@ -19,11 +28,10 @@ def lambda_handler(event, context):
 
     """
 
-    
-    
-
     try:
-        secret_name = "arn:aws:secretsmanager:eu-west-2:389125938424:secret:datawarehouse-zhlI93"
+        secret_name = (
+            "arn:aws:secretsmanager:eu-west-2:389125938424:secret:datawarehouse-zhlI93"
+        )
 
         secrets_extension_endpoint = (
             f"http://localhost:2773/secretsmanager/get?secretId={secret_name}"
@@ -44,28 +52,37 @@ def lambda_handler(event, context):
         os.environ["PORT"] = secret["port"]
         os.environ["HOST"] = secret["host"]
 
-        # table_names = {
-        #     "fact_sales_order",
-        #     "dim_design",
-        #     "dim_currency",
-        #     "dim_location",
-        #     "dim_date",
-        #     "dim_staff",
-        #     "dim_counterparty"
-        # }
         # Only 7 out of 11 tables included to match mock database
         # To extract ALL tables include missing table names
-        # for table in table_names:
-        #     ingest(table, os.environ["INGESTION_BUCKET_NAME"])
-            
+        table_names = {
+            "fact_sales_order": load_fact_sales_order_into_warehouse,
+            "dim_design": load_dim_design_into_warehouse,
+            "dim_currency": load_dim_currency_into_warehouse,
+            "dim_location": load_dim_location_into_warehouse,
+            "dim_date": load_dim_dates_into_warehouse,
+            "dim_staff": load_dim_staff_into_warehouse,
+            "dim_counterparty": load_dim_counterparty_into_warehouse,
+        }
+
+        for table_name in table_names:
+            df = accessing_files_from_processed_bucket(
+                table_name, os.environ["TRANSFORM_BUCKET_NAME"]
+            )
+            table_names[table_name](df)
+
         step_function = os.environ["STEP_MACHINE_ARN"]
-        client = boto3.client("stepfunctions",region_name="eu-west-2")
-        sf_running = client.list_executions(stateMachineArn=os.environ["STEP_MACHINE_ARN"],statusFilter="RUNNING")
-        sf_running_check = sf_running.get("executions",[])
+        client = boto3.client("stepfunctions", region_name="eu-west-2")
+        sf_running = client.list_executions(
+            stateMachineArn=os.environ["STEP_MACHINE_ARN"], statusFilter="RUNNING"
+        )
+        sf_running_check = sf_running.get("executions", [])
         if not sf_running_check:
             client.start_execution(stateMachineArn=step_function)
-        
-        return {"statusCode": response.status_code}
+
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Data successfully loaded"}),
+        }
 
     except Exception as e:
         print(f"Error: {str(e)}")
