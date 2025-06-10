@@ -31,8 +31,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes postgresql-client
   
-      - name: Setup database
+      - name: Setup test database
         run: psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
+        env: 
+          PGPASSWORD: postgres
+      
+      - name: Setup test warehouse
+        run: psql -f data/test_warehouse_db.sql -p 5432 -h localhost -U postgres
         env: 
           PGPASSWORD: postgres
 
@@ -41,11 +46,29 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run makefile
-        run: make run-all
+      - name: Run project setup
+        run: make run-setup
         env: 
           DBUSER : postgres
           DBNAME : mock_totesys
+          DBPASSWORD : postgres 
+          PORT: 5432
+          HOST : localhost
+      
+      - name: Run initial tests
+        run: make unit-test-initial
+        env: 
+          DBUSER : postgres
+          DBNAME : mock_totesys
+          DBPASSWORD : postgres 
+          PORT: 5432
+          HOST : localhost
+      
+      - name: Run load tests
+        run: make unit-test-load
+        env: 
+          DBUSER : postgres
+          DBNAME : mock_warehouse
           DBPASSWORD : postgres 
           PORT: 5432
           HOST : localhost
