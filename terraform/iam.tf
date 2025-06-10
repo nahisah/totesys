@@ -280,6 +280,11 @@ data "aws_iam_policy_document" "load_s3_document" {
       "${aws_s3_bucket.processed-bucket.arn}"
     ]
   }
+  statement {
+
+    actions   = ["secretsmanager:GetSecretValue"]
+    resources = ["arn:aws:secretsmanager:eu-west-2:389125938424:secret:datawarehouse-zhlI93"]
+  }
 }
 
 data "aws_iam_policy_document" "load_cw_document" {

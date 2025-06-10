@@ -48,6 +48,7 @@ resource "aws_lambda_function" "load_lambda" {
   s3_key        = "load-lambda.zip"
   role          = aws_iam_role.load_lambda_role.arn
   handler       = "load_lambda.lambda_handler"
+  layers    = ["arn:aws:lambda:eu-west-2:133256977650:layer:AWS-Parameters-and-Secrets-Lambda-Extension:17"]
   timeout = 30
 
 
