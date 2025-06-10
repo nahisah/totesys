@@ -2,7 +2,7 @@ import os
 import pytest
 from moto import mock_aws
 import boto3
-from src.load.load_utils import accessing_files_from_processed_bucket, load_dim_dates_into_warehouse, load_dim_staff_into_warehouse, load_dim_location_into_warehouse, load_dim_currency_into_warehouse
+from src.load.load_utils import accessing_files_from_processed_bucket, load_dim_dates_into_warehouse, load_dim_staff_into_warehouse, load_dim_location_into_warehouse, load_dim_currency_into_warehouse, load_dim_design_into_warehouse
 from utils.db_connection import create_conn, close_conn
 import datetime
 from datetime import timezone
@@ -149,5 +149,29 @@ class TestLoadDataFramesIntoWarehouse:
         
         with pytest.raises(RuntimeError):
             load_dim_currency_into_warehouse(df)
+
+    def test_dim_design_uploads_data_to_warehouse(self, client):
+        bucket_name = "mock_bucket"
+        client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint":"eu-west-2"})
+        key = f"dim_design/2025/01/01/dim_design-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
+        client.upload_file("data/test_data/dim_design-20250609T105450Z.parquet", bucket_name, key)
+        
+        df = accessing_files_from_processed_bucket("dim_design", bucket_name)
+        
+        load_dim_design_into_warehouse(df)
+        
+        assert len(get_rows_from_table("dim_design")) == 603
+
+    def test_dim_design_raises_runtime_error_on_exception(self, client):
+        bucket_name = "mock_bucket"
+        client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint":"eu-west-2"})
+        key = f"dim_design/2025/01/01/dim_design-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
+
+        client.upload_file("data/test_data/dim_counterparty-20250609T133849Z.parquet", bucket_name, key)
+        
+        df = accessing_files_from_processed_bucket("dim_design", bucket_name)
+        
+        with pytest.raises(RuntimeError):
+            load_dim_design_into_warehouse(df)
 
 
