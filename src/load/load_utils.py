@@ -130,4 +130,26 @@ def load_dim_design_into_warehouse(df):
         finally:
             close_conn(conn)
 
+def load_dim_counterparty_into_warehouse(df):
+    conn = create_conn()
+    if conn:
+        try:
+            query = f"""
+            INSERT INTO dim_counterparty
+            VALUES 
+            """
+
+            for _, row in df.iterrows():
+                query += f"({row["counterparty_id"]}, $${row["counterparty_legal_name"]}$$, $${row["counterparty_legal_address_line_1"]}$$, $${row["counterparty_legal_address_line_2"]}$$, $${row["counterparty_legal_district"]}$$, $${row["counterparty_legal_city"]}$$, $${row["counterparty_legal_postal_code"]}$$, $${row["counterparty_legal_country"]}$$, $${row["counterparty_legal_phone"]}$$), "
+            query = query[:-2]
+            query += " ON CONFLICT (counterparty_id) DO NOTHING;"
+            
+            conn.run(query)
+        
+        except Exception as e:
+            raise RuntimeError(f"Database query failed: {e}")
+        
+        finally:
+            close_conn(conn)
+
 
