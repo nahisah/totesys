@@ -2,7 +2,7 @@ import os
 import pytest
 from moto import mock_aws
 import boto3
-from src.load.load_utils import accessing_files_from_processed_bucket, load_dim_dates_into_warehouse
+from src.load.load_utils import accessing_files_from_processed_bucket, load_dim_dates_into_warehouse, load_dim_staff_into_warehouse
 from utils.db_connection import create_conn, close_conn
 import datetime
 from datetime import timezone
@@ -59,7 +59,6 @@ class TestLoadDataFramesIntoWarehouse:
         bucket_name = "mock_bucket"
         client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint":"eu-west-2"})
         key = f"dim_date/2025/01/01/dim_date-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
-
         client.upload_file("./data/test_data/dim_date-20250609T105450Z.parquet", bucket_name, key)
         
         df = accessing_files_from_processed_bucket("dim_date", bucket_name)
@@ -72,10 +71,33 @@ class TestLoadDataFramesIntoWarehouse:
         bucket_name = "mock_bucket"
         client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint":"eu-west-2"})
         key = f"dim_date/2025/01/01/dim_date-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
-
         client.upload_file("data/test_data/dim_counterparty-20250609T133849Z.parquet", bucket_name, key)
         
         df = accessing_files_from_processed_bucket("dim_date", bucket_name)
         
         with pytest.raises(RuntimeError):
             load_dim_dates_into_warehouse(df)
+    
+    def test_dim_staff_uploads_data_to_warehouse(self, client):
+        bucket_name = "mock_bucket"
+        client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint":"eu-west-2"})
+        key = f"dim_staff/2025/01/01/dim_staff-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
+        client.upload_file("data/test_data/dim_staff-20250609T105450Z.parquet", bucket_name, key)
+        
+        df = accessing_files_from_processed_bucket("dim_staff", bucket_name)
+        
+        load_dim_staff_into_warehouse(df)
+        
+        assert len(get_rows_from_table("dim_staff")) == 20
+
+    def test_dim_staff_raises_runtime_error_on_exception(self, client):
+        bucket_name = "mock_bucket"
+        client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={"LocationConstraint":"eu-west-2"})
+        key = f"dim_staff/2025/01/01/dim_staff-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
+
+        client.upload_file("data/test_data/dim_counterparty-20250609T133849Z.parquet", bucket_name, key)
+        
+        df = accessing_files_from_processed_bucket("dim_staff", bucket_name)
+        
+        with pytest.raises(RuntimeError):
+            load_dim_staff_into_warehouse(df)

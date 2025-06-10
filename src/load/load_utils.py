@@ -25,7 +25,6 @@ def load_dim_dates_into_warehouse(df):
         try:
             query = f"""
             INSERT INTO dim_date
-            (date_id, year, month, day, day_of_week, day_name, month_name, quarter)
             VALUES 
             """
 
@@ -41,5 +40,26 @@ def load_dim_dates_into_warehouse(df):
         
         finally:
             close_conn(conn)
-             
+
+def load_dim_staff_into_warehouse(df):
+    conn = create_conn()
+    if conn:
+        try:
+            query = f"""
+            INSERT INTO dim_staff
+            VALUES 
+            """
+
+            for _, row in df.iterrows():
+                query += f"({row["staff_id"]}, $${row["first_name"]}$$, $${row["last_name"]}$$, '{row["department_name"]}', '{row["location"]}', $${row["email_address"]}$$), "
+            query = query[:-2]
+            query += " ON CONFLICT (staff_id) DO NOTHING;"
+            
+            conn.run(query)
+        
+        except Exception as e:
+            raise RuntimeError(f"Database query failed: {e}")
+        
+        finally:
+            close_conn(conn)
           
