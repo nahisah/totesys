@@ -1,16 +1,15 @@
-from pg8000.native import Connection
-import dotenv
 import os
+
+import dotenv
+from pg8000.native import Connection
 
 
 def create_conn():
     """
-    This function creates a connection to PostgreSQL database using credentials from environment variables.
-    Loads environment variables using dotenv retrieves the database the credentials and returns a connection object.
+    This function creates a connection to a PostgreSQL database using credentials from environment variables.
 
-    Returns:
-        Connection: Database connection to PostgreSQL database
-
+    # Returns:
+        A pg8000 database Connection object.
     """
     dotenv.load_dotenv()
 
@@ -24,13 +23,12 @@ def create_conn():
 
 def close_conn(conn):
     """
-    Closes connection to PostgreSQL database.
+    This function closes the connection to a PostgreSQL database.
 
-    Arguments:
-        conn: Live PostgreSQL connection object that is to be closed.
+    # Arguments:
+        conn: a pg8000 Connection object that is to be closed.
 
-    Returns:
-        None
-
+    # Returns:
+        None.
     """
     conn.close()

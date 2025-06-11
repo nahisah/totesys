@@ -1,27 +1,27 @@
-from src.transform.transform_utils import (
-    get_all_table_data_from_ingest_bucket,
-    transform_fact_sales_order,
-    upload_to_s3,
-    transform_dim_design,
-    transform_dim_currency,
-    transform_dim_location,
-    transform_dim_date,
-    transform_dim_staff,
-    transform_dim_counterparty,
-)
-import os
 import json
 import logging
+import os
+
+from src.transform.transform_utils import (
+    get_all_table_data_from_ingest_bucket,
+    transform_dim_counterparty,
+    transform_dim_currency,
+    transform_dim_date,
+    transform_dim_design,
+    transform_dim_location,
+    transform_dim_staff,
+    transform_fact_sales_order,
+    upload_to_s3,
+)
 
 
 def lambda_handler(event, context):
     """
     This function will run the transform function on all tables in the ingestion bucket and upload them as parquet to the processed bucket.
 
-    Returns:
-    A status code(200) signifying a successful input into the processed bucket
-    OR
-    A status code(500) signifying an unsuccessful attempt
+    # Returns:
+        A message with status code 200 on successful input into the processed bucket.
+        A message with status code 500 on an unsuccessful attempt.
 
     """
 
@@ -72,5 +72,3 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "body": json.dumps({"message": "Error!", "error": str(e)}),
         }
-
-    

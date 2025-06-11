@@ -1,11 +1,13 @@
-import pytest
-from utils.default_serialiser import default_serialiser
-from utils.normalise_datetime import normalise_datetimes
-from utils.db_connection import create_conn
-from unittest.mock import patch, Mock
+import os
 from datetime import datetime
 from decimal import Decimal
-import os
+from unittest.mock import Mock, patch
+
+import pytest
+
+from utils.db_connection import create_conn
+from utils.default_serialiser import default_serialiser
+from utils.normalise_datetime import normalise_datetimes
 
 
 class TestDefaultSerialiser:

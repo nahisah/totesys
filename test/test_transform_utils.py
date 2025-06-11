@@ -1,24 +1,26 @@
-from src.transform.transform_utils import (
-    get_table_data_from_ingest_bucket,
-    get_all_table_data_from_ingest_bucket,
-    transform_fact_sales_order,
-    upload_to_s3,
-    transform_dim_design,
-    transform_dim_currency,
-    transform_dim_location,
-    transform_dim_date,
-    transform_dim_staff,
-    transform_dim_counterparty,
-)
-import pytest
-import os
-from moto import mock_aws
-import boto3
-from datetime import timezone
 import datetime
 import json
-import pandas as pd
+import os
+from datetime import timezone
+
 import awswrangler as wr
+import boto3
+import pandas as pd
+import pytest
+from moto import mock_aws
+
+from src.transform.transform_utils import (
+    get_all_table_data_from_ingest_bucket,
+    get_table_data_from_ingest_bucket,
+    transform_dim_counterparty,
+    transform_dim_currency,
+    transform_dim_date,
+    transform_dim_design,
+    transform_dim_location,
+    transform_dim_staff,
+    transform_fact_sales_order,
+    upload_to_s3,
+)
 
 
 @pytest.fixture
