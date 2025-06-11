@@ -80,7 +80,7 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: dev
-    needs: postgres-run-tests
+    needs: run-tests
 
     defaults:
       run:
