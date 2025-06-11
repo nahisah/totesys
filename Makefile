@@ -27,9 +27,9 @@ unit-test-load:
 	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/load_tests.txt --cov
 
 format-code:
-	source venv/bin/activate && isort test/ src/ --profile black && black test/ src/
+	source venv/bin/activate && isort test/ src/ utils/ --profile black && black test/ src/ utils/
 
 lint-code:
-	source venv/bin/activate && flake8 test/ src/ --max-line-length=88 --ignore=E203,W503,E501
+	source venv/bin/activate && flake8 test/ src/ utils/ --max-line-length=88 --ignore=E203,W503,E501
 
 run-setup: create-environment install-requirements install-dev-tools security-check format-code lint-code

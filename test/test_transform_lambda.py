@@ -1,9 +1,11 @@
-import pytest
-import os
-from moto import mock_aws
-import boto3
-from src.transform.transform_lambda import lambda_handler
 import json
+import os
+
+import boto3
+import pytest
+from moto import mock_aws
+
+from src.transform.transform_lambda import lambda_handler
 
 
 @pytest.fixture
