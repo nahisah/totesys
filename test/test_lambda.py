@@ -7,7 +7,7 @@ import dotenv
 import pytest
 from moto import mock_aws
 
-from src.ingestion.lambda_for_secrets import lambda_handler
+from src.ingestion.ingest_lambda import lambda_handler
 
 
 @pytest.fixture(autouse=True)
