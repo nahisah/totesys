@@ -14,9 +14,8 @@ s3transfer==0.13.0
 scramp==1.4.5
 six==1.17.0
 urllib3==2.4.0
-moto
-pandas
-pyarrow
-awswrangler
-currency-codes
-
+moto==5.1.5
+pandas==2.3.0
+pyarrow==20.0.0
+awswrangler==3.12.0
+currency-codes==23.6.4
