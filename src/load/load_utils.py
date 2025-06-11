@@ -49,7 +49,7 @@ def load_dim_staff_into_warehouse(df):
             """
 
             for _, row in df.iterrows():
-                query += f"({row["staff_id"]}, $${row["first_name"]}$$, $${row["last_name"]}$$, '{row["department_name"]}', '{row["location"]}', $${row["email_address"]}$$), "
+                query += f"({row['staff_id']}, $${row['first_name']}$$, $${row['last_name']}$$, '{row['department_name']}', '{row['location']}', $${row['email_address']}$$), "
             query = query[:-2]
             query += " ON CONFLICT (staff_id) DO NOTHING;"
 
@@ -72,7 +72,7 @@ def load_dim_location_into_warehouse(df):
             """
 
             for _, row in df.iterrows():
-                query += f"({row["location_id"]}, $${row["address_line_1"]}$$, $${row["address_line_2"]}$$, $${row["district"]}$$, $${row["city"]}$$, $${row["postal_code"]}$$, $${row["country"]}$$, $${row["phone"]}$$), "
+                query += f"({row['location_id']}, $${row['address_line_1']}$$, $${row['address_line_2']}$$, $${row['district']}$$, $${row['city']}$$, $${row['postal_code']}$$, $${row['country']}$$, $${row['phone']}$$), "
             query = query[:-2]
             query += " ON CONFLICT (location_id) DO NOTHING;"
 
@@ -95,7 +95,7 @@ def load_dim_currency_into_warehouse(df):
             """
 
             for _, row in df.iterrows():
-                query += f"({row["currency_id"]}, $${row["currency_code"]}$$, $${row["currency_name"]}$$), "
+                query += f"({row['currency_id']}, $${row['currency_code']}$$, $${row['currency_name']}$$), "
             query = query[:-2]
             query += " ON CONFLICT (currency_id) DO NOTHING;"
 
@@ -118,7 +118,7 @@ def load_dim_design_into_warehouse(df):
             """
 
             for _, row in df.iterrows():
-                query += f"({row["design_id"]}, $${row["design_name"]}$$, $${row["file_location"]}$$, $${row["file_name"]}$$), "
+                query += f"({row['design_id']}, $${row['design_name']}$$, $${row['file_location']}$$, $${row['file_name']}$$), "
             query = query[:-2]
             query += " ON CONFLICT (design_id) DO NOTHING;"
 
@@ -141,7 +141,7 @@ def load_dim_counterparty_into_warehouse(df):
             """
 
             for _, row in df.iterrows():
-                query += f"({row["counterparty_id"]}, $${row["counterparty_legal_name"]}$$, $${row["counterparty_legal_address_line_1"]}$$, $${row["counterparty_legal_address_line_2"]}$$, $${row["counterparty_legal_district"]}$$, $${row["counterparty_legal_city"]}$$, $${row["counterparty_legal_postal_code"]}$$, $${row["counterparty_legal_country"]}$$, $${row["counterparty_legal_phone"]}$$), "
+                query += f"({row['counterparty_id']}, $${row['counterparty_legal_name']}$$, $${row['counterparty_legal_address_line_1']}$$, $${row['counterparty_legal_address_line_2']}$$, $${row['counterparty_legal_district']}$$, $${row['counterparty_legal_city']}$$, $${row['counterparty_legal_postal_code']}$$, $${row['counterparty_legal_country']}$$, $${row['counterparty_legal_phone']}$$), "
             query = query[:-2]
             query += " ON CONFLICT (counterparty_id) DO NOTHING;"
 
@@ -185,7 +185,7 @@ def load_fact_sales_order_into_warehouse(df):
             """
 
             for _, row in df.iterrows():
-                temp_insert_query += f"({row["sales_order_id"]}, '{row["created_date"]}', $${row["created_time"]}$$, '{row["last_updated_date"]}', $${row["last_updated_time"]}$$, {row["sales_staff_id"]}, {row["counterparty_id"]}, {row["units_sold"]}, {row["unit_price"]}, {row["currency_id"]}, {row["design_id"]}, '{row["agreed_payment_date"]}', '{row["agreed_delivery_date"]}', {row["agreed_delivery_location_id"]}), "
+                temp_insert_query += f"({row['sales_order_id']}, '{row['created_date']}', $${row['created_time']}$$, '{row['last_updated_date']}', $${row['last_updated_time']}$$, {row['sales_staff_id']}, {row['counterparty_id']}, {row['units_sold']}, {row['unit_price']}, {row['currency_id']}, {row['design_id']}, '{row['agreed_payment_date']}', '{row['agreed_delivery_date']}', {row['agreed_delivery_location_id']}), "
 
             temp_insert_query = temp_insert_query[:-2]
             temp_insert_query += ";"
