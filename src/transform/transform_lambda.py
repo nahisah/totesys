@@ -55,7 +55,7 @@ def lambda_handler(event, context):
         }
 
         for k, v in table_names.items():
-            logger.info(f"Uploading to S3")
+            logger.info("Uploading to S3")
             upload_to_s3(v, os.environ["TRANSFORM_BUCKET_NAME"], k)
 
         return {
