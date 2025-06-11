@@ -15,16 +15,16 @@ install-requirements:
 
 install-dev-tools:
 	echo "installing dev tools..."
-	source venv/bin/activate && $(PIP) install bandit black safety pip-audit pytest pytest-cov flake8 isort
+	source venv/bin/activate && $(PIP) install bandit black safety pip-audit pytest pytest-cov pytest-testdox flake8 isort
 
 security-check:
 	source venv/bin/activate && bandit -lll */*.py *c/*.py && pip-audit
 
 unit-test-initial:
-	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/initial_tests.txt --cov
+	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/initial_tests.txt --cov --testdox
 
 unit-test-load:
-	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/load_tests.txt --cov
+	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/load_tests.txt --cov --testdox
 
 format-code:
 	source venv/bin/activate && isort test/ src/ --profile black && black test/ src/
