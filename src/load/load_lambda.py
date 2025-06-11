@@ -4,27 +4,24 @@ import os
 import requests
 
 from src.load.load_utils import (
-    load_dim_staff_into_warehouse,
+    access_files_from_processed_bucket,
     load_dim_counterparty_into_warehouse,
     load_dim_currency_into_warehouse,
     load_dim_dates_into_warehouse,
     load_dim_design_into_warehouse,
     load_dim_location_into_warehouse,
+    load_dim_staff_into_warehouse,
     load_fact_sales_order_into_warehouse,
-    accessing_files_from_processed_bucket,
 )
 
 
 def lambda_handler(event, context):
     """
-    This function will get database credentials from AWS Secrets Manager and run the
-    ingest function (inputs data into s3 bucket)for all tables in the database.
+    This function will get warehouse credentials from AWS Secrets Manager, import the most recent transformed data from s3 and load it into the warehouse.
 
-    Returns:
-    A status code(200) signifying a successful input into the S3 bucket
-    OR
-    A status code(500) signifying an unsuccessful attempt
-
+    # Returns:
+        A message with status code 200 on successful loading into the warehouse.
+        A message with status code 500 on unsuccessful loading of the data.
     """
 
     try:
@@ -64,7 +61,7 @@ def lambda_handler(event, context):
         }
 
         for table_name in table_names:
-            df = accessing_files_from_processed_bucket(
+            df = access_files_from_processed_bucket(
                 table_name, os.environ["TRANSFORM_BUCKET_NAME"]
             )
             table_names[table_name](df)

@@ -1,9 +1,10 @@
-import boto3
 import json
 import os
-import pandas as pd
 from datetime import datetime, timezone
+
 import awswrangler as wr
+import boto3
+import pandas as pd
 from currency_codes import get_currency_by_code
 
 
@@ -11,15 +12,15 @@ def get_table_data_from_ingest_bucket(table_name, bucket_name):
     """
     Connects to the ingestion s3 bucket and retrieves the most recent data for the given table.
 
-    Arguments:
-        table_name: the name of the table in the bucket to retrieve data from
-        bucket_name: the name of the s3 bucket, which should be the ingestion bucket
+    # Arguments:
+        table_name: the name of the table in the bucket to retrieve data from.
+        bucket_name: the name of the s3 bucket, which should be the ingestion bucket.
 
-    Returns:
-        A list of dictionaries for a given table. The dictionaries' keys are column names from the ingested table and whose values are the most recent entries for that table.
+    # Returns:
+        A list of dictionaries for a given table. The dictionaries' keys are column names from the ingested table and values are the most recent entries for that table.
 
-    Raises:
-        RuntimeError on error
+    # Raises:
+        RuntimeError: An error occurred during data retrieval.
     """
     try:
         client = boto3.client("s3")
@@ -37,7 +38,7 @@ def get_all_table_data_from_ingest_bucket():
     """
     Retrieves the most recent data for each table stored in the ingestion s3 bucket.
 
-    Returns:
+    # Returns:
         A dictionary whose keys are table names and whose values are lists of dictionaries, each dictionary representing a table row.
     """
     table_names = [
@@ -60,14 +61,13 @@ def get_all_table_data_from_ingest_bucket():
 
 def transform_fact_sales_order(sales_order_data):
     """
-    Transforms data from the sales_order table into the format required for fact_sales_order
+    Transforms data from the sales_order table into the format required for fact_sales_order.
 
-    Arguments:
-    data in a form of a list of dictionaries representing the contents of the sales_order table
+    # Arguments:
+        sales_order_data: a list of dictionaries representing the contents of the sales_order table.
 
-
-    Returns:
-    a dataframe in the required format
+    # Returns:
+        A dataframe in the required format.
     """
     df = pd.DataFrame(sales_order_data)
 
@@ -87,11 +87,9 @@ def transform_fact_sales_order(sales_order_data):
         df["agreed_delivery_date"], format="%Y-%m-%d"
     ).dt.date
 
-    # delete unnecessary columns
     del df["created_at"]
     del df["last_updated"]
 
-    # add sales_record_id column as index
     df.insert(0, "sales_record_id", df.index)
 
     df = df.rename(columns={"staff_id": "sales_staff_id"})
@@ -115,7 +113,6 @@ def transform_fact_sales_order(sales_order_data):
     ]
 
     df = df[columns_in_order]
-    print(df)
     return df
 
 
@@ -123,11 +120,11 @@ def transform_dim_design(design_data):
     """
     Transforms data from the design table into the format required for dim_design.
 
-    Arguments:
-    data in a form of a list of dictionaries representing the contents of the design table
+    # Arguments:
+        design_data: a list of dictionaries representing the contents of the design table.
 
-    Returns:
-    a dataframe in the required format
+    # Returns:
+        A dataframe in the required format.
     """
     df = pd.DataFrame(design_data)
     del df["created_at"]
@@ -140,11 +137,11 @@ def transform_dim_currency(currency_data):
     """
     Transforms data from the currency table into the format required for dim_currency.
 
-    Arguments:
-    data in a form of a list of dictionaries representing the contents of the currency table
+    # Arguments:
+        cuurency_data: a list of dictionaries representing the contents of the currency table.
 
-    Returns:
-    a dataframe in the required format
+    # Returns:
+        A dataframe in the required format.
     """
     df = pd.DataFrame(currency_data)
     del df["created_at"]
@@ -159,13 +156,13 @@ def transform_dim_currency(currency_data):
 
 def transform_dim_location(location_data):
     """
-    Transforms data from the address table into the format required for dim_location
+    Transforms data from the address table into the format required for dim_location.
 
-    Arguments:
-    data in a form of a list of dictionaries representing the contents of the address table
+    # Arguments:
+        location_data: a list of dictionaries representing the contents of the address table.
 
-    Returns:
-    a dataframe in the required format
+    # Returns:
+        A dataframe in the required format.
     """
     df = pd.DataFrame(location_data)
     del df["created_at"]
@@ -178,13 +175,13 @@ def transform_dim_location(location_data):
 
 def transform_dim_date(transformed_fact_sales_data):
     """
-    Transforms data from the sales_order table into the format required for fact_sales_order
+    Transforms data from the sales_order table into the format required for dim_date.
 
-    Arguments:
-    data in a form of a dataframe from transform_fact_sales_order as an argument.
+    # Arguments:
+        transformed_fact_sales_data: a dataframe returned from the transform_fact_sales_order function.
 
-    Returns:
-    a dataframe in the required format
+    # Returns:
+        A dataframe in the required format.
     """
     old_df = transformed_fact_sales_data
     dates_1 = old_df["created_date"]
@@ -211,11 +208,12 @@ def transform_dim_staff(staff_data, department_data):
     """
     Transforms data from the staff and department tables into the format required for dim_staff.
 
-    Arguments:
-    data in a form of a list of dictionaries representing the contents of the staff and department tables.
+    # Arguments:
+        staff_data: a list of dictionaries representing the contents of the staff table.
+        department_data: a list of dictionaries representing the contents of the department table.
 
-    Returns:
-    a dataframe in the required format
+    # Returns:
+        A dataframe in the required format.
     """
     staff_df = pd.DataFrame(staff_data)
     department_df = pd.DataFrame(department_data)
@@ -243,13 +241,14 @@ def transform_dim_staff(staff_data, department_data):
 
 def transform_dim_counterparty(counterparty_data, address_data):
     """
-    Transforms data from the counterparty and address tables into the format required for dim_counterparty
+    Transforms data from the counterparty and address tables into the format required for dim_counterparty.
 
-    Arguments:
-    data in a form of a list of dictionaries representing the contents of the counterparty and address tables.
+    # Arguments:
+        counterparty_data: a list of dictionaries representing the contents of the counterparty table.
+        address_data: a list of dictionaries representing the contents of the address table.
 
-    Returns:
-    a dataframe in the required format
+    # Returns:
+        A dataframe in the required format.
     """
     counterparty_df = pd.DataFrame(counterparty_data)
     address_df = pd.DataFrame(address_data)
@@ -286,15 +285,18 @@ def transform_dim_counterparty(counterparty_data, address_data):
 
 def upload_to_s3(dataframe, bucket_name, table_name):
     """
-    This function takes a json object and uploads it to a given bucket with a key that includes table name and datestamp
+    This function takes a dataframe and uploads it in parquet format to a given bucket with a key that includes table name and datestamp.
 
-    Arguments:
-        data: a bytes object, suitable for storage as parquet
-        bucket_name: a string representing the name of s3 bucket
-        table_name: a string representing the table in the warehouse which we are uploading to
+    # Arguments:
+        dataframe: a dataframe with the transformed data, suitable for storage as parquet.
+        bucket_name: a string representing the name of the s3 bucket to upload the parquet file to.
+        table_name: a string representing the table in the warehouse that the data corresponds to.
 
-    Returns:
-        A message confirming successful upload and showing the full key
+    # Returns:
+        A message containing the location of the uploaded data.
+
+    # Raises:
+        RuntimeError: An error occurred during data upload.
     """
     now = datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")

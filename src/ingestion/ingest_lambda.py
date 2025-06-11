@@ -1,22 +1,19 @@
 import json
 import os
 
+import boto3
 import requests
 
 from src.ingestion.ingest_utils import ingest
-import boto3
 
 
 def lambda_handler(event, context):
     """
-    This function will get database credentials from AWS Secrets Manager and run the
-    ingest function (inputs data into s3 bucket)for all tables in the database.
+    This function will get database credentials from AWS Secrets Manager and store the data in the ingestion s3 bucket in json format for all tables in the database.
 
-    Returns:
-    A status code(200) signifying a successful input into the S3 bucket
-    OR
-    A status code(500) signifying an unsuccessful attempt
-
+    # Returns:
+        A message with status code 200 on successful extraction of the data from the database into the s3 bucket.
+        A message with status code 500 on an unsuccessful attempt.
     """
 
     try:
@@ -64,7 +61,10 @@ def lambda_handler(event, context):
         if not sf_running_check:
             client.start_execution(stateMachineArn=step_function)
 
-        return {"statusCode": response.status_code}
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Data successfully extracted"}),
+        }
 
     except Exception as e:
         print(f"Error: {str(e)}")
