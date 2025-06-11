@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from src.ingestion.ingest import ingest
+from src.ingestion.ingest_utils import ingest
 import boto3
 
 

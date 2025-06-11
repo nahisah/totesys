@@ -36,7 +36,7 @@ def step_client(test_mock_credentials):
         yield boto3.client("stepfunctions",region_name="eu-west-2")        
 
 
-@patch("src.ingestion.lambda_for_secrets.requests")
+@patch("src.ingestion.ingest_lambda.requests")
 
 def test_successful_request_returns_status_code_200(mock_request,client,step_client):
     step_client.create_state_machine(
@@ -67,7 +67,7 @@ def test_successful_request_returns_status_code_200(mock_request,client,step_cli
     assert lambda_handler({}, {}) == {"statusCode": 200}
 
 
-@patch("src.ingestion.lambda_for_secrets.requests")
+@patch("src.ingestion.ingest_lambda.requests")
 
 def test_all_data_successfully_put_inside_bucket(mock_request,client,step_client):
     step_client.create_state_machine(
@@ -100,7 +100,7 @@ def test_all_data_successfully_put_inside_bucket(mock_request,client,step_client
     assert len(contents["Contents"]) == 7  # Number should match amount of table names
 
 
-@patch("src.ingestion.lambda_for_secrets.requests")
+@patch("src.ingestion.ingest_lambda.requests")
 
 def test_status_code_500_for_wrong_request(mock_request,client,step_client):
     step_client.create_state_machine(
