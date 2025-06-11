@@ -2,7 +2,7 @@ name: Totesys Test and Deploy
 run-name: ${{ github.actor }} has triggered testing on push 🚀
 on: [push]
 jobs:
-  postgres-run-tests:
+  run-tests:
 
     runs-on: ubuntu-latest
     environment: dev
@@ -21,7 +21,6 @@ jobs:
           --health-retries 5
 
     steps:
-
       - name: Check out repository code
         uses: actions/checkout@v4
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
@@ -113,7 +112,6 @@ jobs:
       working-directory: terraform
       run: terraform plan -input=false
 
-
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -125,27 +123,23 @@ jobs:
         mkdir -p lambda/transform/src/transform
         mkdir -p lambda/load/src/load
 
-    
     - name: Install dependancies 
       run: |
         pip install -r src/ingestion/ingestion_requirements.txt -t lambda/ingestion/
         pip install -r src/transform/transform_requirements.txt -t lambda/transform/
         pip install -r src/load/load_requirements.txt -t lambda/load/
     
-    
     - name: Copying source code and utils into lambda folder
       run: |
             cp -r src/ingestion/* lambda/ingestion/src/ingestion/
+            cp -r src/ingestion/* lambda/ingestion/
             cp -r utils lambda/ingestion/
             cp -r src/transform/* lambda/transform/src/transform
+            cp -r src/transform/* lambda/transform/
             cp -r utils lambda/transform/
             cp -r src/load/* lambda/load/src/load
-            cp -r utils lambda/load/
-
-            cp -r src/ingestion/* lambda/ingestion/
-            cp -r src/transform/* lambda/transform/
             cp -r src/load/* lambda/load/
-
+            cp -r utils lambda/load/
 
     - name: Zip up lambda package
       run: |
@@ -165,7 +159,6 @@ jobs:
 
     - name: Terraform Apply Initial Steps
       working-directory: terraform
-      # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
           terraform apply -auto-approve -input=false
           aws s3 cp ../lambda/ingestion/ingestion.zip "s3://$(terraform output -raw code_bucket_name)"
@@ -174,31 +167,5 @@ jobs:
 
     - name: Terraform Apply In Full
       working-directory: terraform
-      # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: | 
-          terraform apply -auto-approve -input=false -var="deploy_lambda_bool=true" 
-# terraform apply -auto-approve -input=false -var="deploy_transform_lambda_bool=true"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
+          terraform apply -auto-approve -input=false -var="deploy_lambda_bool=true"
