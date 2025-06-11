@@ -30,17 +30,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes postgresql-client
   
-      - name: Setup test database
-        run: psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
-        env: 
-          PGPASSWORD: postgres
-      
-      - name: Setup test warehouse
-        run: psql -f data/test_warehouse_db.sql -p 5432 -h localhost -U postgres
+      - name: Setup test database and warehouse
+        run: |
+          psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
+          psql -f data/seed_mock_warehouse.sql -p 5432 -h localhost -U postgres
         env: 
           PGPASSWORD: postgres
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
