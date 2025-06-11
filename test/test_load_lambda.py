@@ -1,14 +1,16 @@
-import pytest
-import os
-from moto import mock_aws
-import boto3
-from src.load.load_lambda import lambda_handler
-import json
 import datetime
+import json
+import os
 from datetime import timezone
 from unittest.mock import patch
+
+import boto3
 import dotenv
-from utils.db_connection import create_conn, close_conn
+import pytest
+from moto import mock_aws
+
+from src.load.load_lambda import lambda_handler
+from utils.db_connection import close_conn, create_conn
 
 
 @pytest.fixture(autouse=True)

@@ -1,9 +1,23 @@
-import boto3
 import awswrangler as wr
-from utils.db_connection import create_conn, close_conn
+import boto3
+
+from utils.db_connection import close_conn, create_conn
 
 
-def accessing_files_from_processed_bucket(table_name, bucket_name):
+def access_files_from_processed_bucket(table_name, bucket_name):
+    """
+    This function connects to the s3 bucket with transformed data and returns all the information in the given table as a dataframe.
+
+    # Arguments:
+        table_name: a string representing the name of the table in the database that we want to extract.
+        bucket_name: a string representing the name of the s3 bucket with transformed data to connect to.
+
+    # Returns:
+        A dataframe containing the most recent data for the given table in the bucket.
+
+    # Raises:
+        RuntimeError: An error occurred during data retrieval.
+    """
     try:
         client = boto3.client("s3")
         listing_response = client.list_objects_v2(Bucket=bucket_name, Prefix=table_name)
@@ -17,6 +31,15 @@ def accessing_files_from_processed_bucket(table_name, bucket_name):
 
 
 def load_dim_dates_into_warehouse(df):
+    """
+    Loads data from a dataframe into the warehouse's dim_dates table.
+
+    # Arguments:
+        df: a dataframe representing the contents of the dim_dates table.
+
+    # Returns:
+        None.
+    """
     conn = create_conn()
     if conn:
         try:
@@ -40,6 +63,15 @@ def load_dim_dates_into_warehouse(df):
 
 
 def load_dim_staff_into_warehouse(df):
+    """
+    Loads data from a dataframe into the warehouse's dim_staff table.
+
+    # Arguments:
+        df: a dataframe representing the contents of the dim_staff table.
+
+    # Returns:
+        None.
+    """
     conn = create_conn()
     if conn:
         try:
@@ -63,6 +95,15 @@ def load_dim_staff_into_warehouse(df):
 
 
 def load_dim_location_into_warehouse(df):
+    """
+    Loads data from a dataframe into the warehouse's dim_location table.
+
+    # Arguments:
+        df: a dataframe representing the contents of the dim_location table.
+
+    # Returns:
+        None.
+    """
     conn = create_conn()
     if conn:
         try:
@@ -86,6 +127,15 @@ def load_dim_location_into_warehouse(df):
 
 
 def load_dim_currency_into_warehouse(df):
+    """
+    Loads data from a dataframe into the warehouse's dim_currency table.
+
+    # Arguments:
+        df: a dataframe representing the contents of the dim_currency table.
+
+    # Returns:
+        None.
+    """
     conn = create_conn()
     if conn:
         try:
@@ -109,6 +159,15 @@ def load_dim_currency_into_warehouse(df):
 
 
 def load_dim_design_into_warehouse(df):
+    """
+    Loads data from a dataframe into the warehouse's dim_design table.
+
+    # Arguments:
+        df: a dataframe representing the contents of the dim_design table.
+
+    # Returns:
+        None.
+    """
     conn = create_conn()
     if conn:
         try:
@@ -132,6 +191,15 @@ def load_dim_design_into_warehouse(df):
 
 
 def load_dim_counterparty_into_warehouse(df):
+    """
+    Loads data from a dataframe into the warehouse's dim_counterparty table.
+
+    # Arguments:
+        df: a dataframe representing the contents of the dim_counterparty table.
+
+    # Returns:
+        None.
+    """
     conn = create_conn()
     if conn:
         try:
@@ -155,6 +223,15 @@ def load_dim_counterparty_into_warehouse(df):
 
 
 def load_fact_sales_order_into_warehouse(df):
+    """
+    Loads data from a dataframe into the warehouse's fact_sales_order table. Updates to a sales order are stored as new rows, without overwriting previous data.
+
+    # Arguments:
+        df: a dataframe representing the contents of the fact_sales_order table.
+
+    # Returns:
+        None.
+    """
     conn = create_conn()
     if conn:
         try:
