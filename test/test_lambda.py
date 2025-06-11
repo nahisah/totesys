@@ -65,7 +65,10 @@ def test_successful_request_returns_status_code_200(mock_request, client, step_c
     }
     mock_text = json.dumps(mock_body)
     mock_request.get().text = mock_text
-    assert lambda_handler({}, {}) == {"statusCode": 200}
+    assert lambda_handler({}, {}) == {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Data successfully extracted"}),
+        }
 
 
 @patch("src.ingestion.ingest_lambda.requests")
