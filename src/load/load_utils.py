@@ -26,7 +26,7 @@ def load_dim_dates_into_warehouse(df):
             """
 
             for _, row in df.iterrows():
-                query += f"('{row["date_id"]}', {row["year"]}, {row["month"]}, {row["day"]}, {row["day_of_week"]}, '{row["day_name"]}', '{row["month_name"]}', {row["quarter"]}), "
+                query += f"('{row['date_id']}', {row['year']}, {row['month']}, {row['day']}, {row['day_of_week']}, '{row['day_name']}', '{row['month_name']}', {row['quarter']}), "
             query = query[:-2]
             query += "ON CONFLICT (date_id) DO NOTHING;"
 
