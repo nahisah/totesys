@@ -70,7 +70,8 @@ def lambda_handler(event, context):
                 table_name, os.environ["TRANSFORM_BUCKET_NAME"]
             )
             table_names[table_name](df)
-
+        logger.info("Extracted data from processed bucket in correct file format")
+        
         return {
             "statusCode": 200,
             "body": json.dumps({"message": "Data successfully loaded"}),
