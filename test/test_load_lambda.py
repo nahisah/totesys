@@ -18,9 +18,6 @@ def test_mock_credentials():
     os.environ["AWS_SESSION_TOKEN"] = "0123"
     os.environ["INGESTION_BUCKET_NAME"] = "ingestion-bucket"
     os.environ["TRANSFORM_BUCKET_NAME"] = "processed-bucket"
-    os.environ["STEP_MACHINE_ARN"] = (
-        "arn:aws:states:eu-west-2:123456789012:stateMachine:step-machine"
-    )
 
 
 @pytest.fixture(autouse=True)
@@ -32,12 +29,6 @@ def db_credentials():
 def client(test_mock_credentials):
     with mock_aws():
         yield boto3.client("s3")
-
-
-@pytest.fixture
-def step_client(test_mock_credentials):
-    with mock_aws():
-        yield boto3.client("stepfunctions", region_name="eu-west-2")
 
 
 def get_rows_from_table(table_name):
@@ -55,7 +46,7 @@ def get_rows_from_table(table_name):
 
 @patch("src.load.load_lambda.requests")
 @pytest.mark.it("function returns correct message on success")
-def test_uploads_data(mock_request, client, step_client):
+def test_uploads_data(mock_request, client):
     def file_uploader(client, filename):
         table_name = filename.split("-")[0]
         key = f"{table_name}/2025/01/01/{table_name}-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
@@ -80,12 +71,6 @@ def test_uploads_data(mock_request, client, step_client):
     }
     mock_text = json.dumps(mock_body)
     mock_request.get().text = mock_text
-
-    step_client.create_state_machine(
-        name="step-machine",
-        definition="{}",
-        roleArn="arn:aws:iam::123456789012:role/DummyRole",
-    )
 
     client.create_bucket(
         Bucket="processed-bucket",
@@ -112,7 +97,7 @@ def test_uploads_data(mock_request, client, step_client):
 
 @patch("src.load.load_lambda.requests")
 @pytest.mark.it("function uploads all required data to the warehouse")
-def test_uploads_files(mock_request, client, step_client):
+def test_uploads_files(mock_request, client):
     def file_uploader(client, filename):
         table_name = filename.split("-")[0]
         key = f"{table_name}/2025/01/01/{table_name}-{datetime.datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")}"
@@ -138,12 +123,6 @@ def test_uploads_files(mock_request, client, step_client):
     mock_text = json.dumps(mock_body)
     mock_request.get().text = mock_text
 
-    step_client.create_state_machine(
-        name="step-machine",
-        definition="{}",
-        roleArn="arn:aws:iam::123456789012:role/DummyRole",
-    )
-
     client.create_bucket(
         Bucket="processed-bucket",
         CreateBucketConfiguration={"LocationConstraint": "eu-west-2"},
@@ -168,7 +147,7 @@ def test_uploads_files(mock_request, client, step_client):
 
 @patch("src.load.load_lambda.requests")
 @pytest.mark.it("function returns correct error message on failure")
-def test_error_message(mock_request, client, step_client):
+def test_error_message(mock_request, client):
     mock_request.get().status_code = 200
     mock_body = {
         "SecretString": json.dumps(
@@ -183,12 +162,6 @@ def test_error_message(mock_request, client, step_client):
     }
     mock_text = json.dumps(mock_body)
     mock_request.get().text = mock_text
-
-    step_client.create_state_machine(
-        name="step-machine",
-        definition="{}",
-        roleArn="arn:aws:iam::123456789012:role/DummyRole",
-    )
 
     client.create_bucket(
         Bucket="processed-bucket",
