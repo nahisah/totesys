@@ -5,8 +5,8 @@ from datetime import timezone
 import boto3
 from pg8000.native import identifier
 
-from utils.db_connection import close_conn, create_conn
-from utils.default_serialiser import default_serialiser
+from src.utils.db_connection import close_conn, create_conn
+from src.utils.default_serialiser import default_serialiser
 
 
 def extract_data(table_name):
