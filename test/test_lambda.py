@@ -22,7 +22,9 @@ def test_mock_credentials():
     os.environ["AWS_SESSION_TOKEN"] = "0123"
     os.environ["AWS_REGION"] = "eu-west-2"
     os.environ["INGESTION_BUCKET_NAME"] = "ingestion-bucket"
-    os.environ["STEP_MACHINE_ARN"] = "arn:aws:states:eu-west-2:123456789012:stateMachine:step-machine"
+    os.environ["STEP_MACHINE_ARN"] = (
+        "arn:aws:states:eu-west-2:123456789012:stateMachine:step-machine"
+    )
 
 
 @pytest.fixture
@@ -30,21 +32,21 @@ def client(test_mock_credentials):
     with mock_aws():
         yield boto3.client("s3")
 
+
 @pytest.fixture
 def step_client(test_mock_credentials):
     with mock_aws():
-        yield boto3.client("stepfunctions",region_name="eu-west-2")        
+        yield boto3.client("stepfunctions", region_name="eu-west-2")
 
 
 @patch("src.ingestion.ingest_lambda.requests")
 
 def test_successful_request_returns_status_code_200(mock_request,client,step_client):
     step_client.create_state_machine(
-        name = "step-machine",
+        name="step-machine",
         definition="{}",
-        roleArn="arn:aws:iam::123456789012:role/DummyRole"
+        roleArn="arn:aws:iam::123456789012:role/DummyRole",
     )
-    
 
     client.create_bucket(
         Bucket="ingestion-bucket",
@@ -71,9 +73,9 @@ def test_successful_request_returns_status_code_200(mock_request,client,step_cli
 
 def test_all_data_successfully_put_inside_bucket(mock_request,client,step_client):
     step_client.create_state_machine(
-        name = "step-machine",
+        name="step-machine",
         definition="{}",
-        roleArn="arn:aws:iam::123456789012:role/DummyRole"
+        roleArn="arn:aws:iam::123456789012:role/DummyRole",
     )
 
     client.create_bucket(
@@ -104,9 +106,9 @@ def test_all_data_successfully_put_inside_bucket(mock_request,client,step_client
 
 def test_status_code_500_for_wrong_request(mock_request,client,step_client):
     step_client.create_state_machine(
-        name = "step-machine",
+        name="step-machine",
         definition="{}",
-        roleArn="arn:aws:iam::123456789012:role/DummyRole"
+        roleArn="arn:aws:iam::123456789012:role/DummyRole",
     )
 
     mock_request.get().status_code = 200
@@ -123,6 +125,5 @@ def test_status_code_500_for_wrong_request(mock_request,client,step_client):
     }
     mock_text = json.dumps(mock_body)
 
-    mock_request.get().text =mock_text
-    assert lambda_handler({},{})["statusCode"] == 500 
-
+    mock_request.get().text = mock_text
+    assert lambda_handler({}, {})["statusCode"] == 500
