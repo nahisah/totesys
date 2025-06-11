@@ -11,6 +11,7 @@ from src.transform.transform_utils import (
 )
 import os
 import json
+import logging
 
 
 def lambda_handler(event, context):
@@ -23,7 +24,12 @@ def lambda_handler(event, context):
     A status code(500) signifying an unsuccessful attempt
 
     """
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
     try:
+        
         ingested_data = get_all_table_data_from_ingest_bucket()
 
         fact_sales_order = transform_fact_sales_order(ingested_data["sales_order"])
@@ -49,6 +55,7 @@ def lambda_handler(event, context):
         }
 
         for k, v in table_names.items():
+            logger.info(f"Uploading to S3")
             upload_to_s3(v, os.environ["TRANSFORM_BUCKET_NAME"], k)
 
         return {
@@ -57,12 +64,10 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logger.error(f"Error: {str(e)}")
         return {
             "statusCode": 500,
             "body": json.dumps({"message": "Error!", "error": str(e)}),
         }
 
-    # TODO:
-
-    # Docstring
+    

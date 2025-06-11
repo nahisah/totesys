@@ -1,6 +1,6 @@
 import json
 import os
-
+import logging
 import requests
 
 from src.load.load_utils import (
@@ -26,6 +26,8 @@ def lambda_handler(event, context):
     A status code(500) signifying an unsuccessful attempt
 
     """
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
     try:
         secret_name = (
@@ -40,7 +42,7 @@ def lambda_handler(event, context):
         }
 
         response = requests.get(secrets_extension_endpoint, headers=headers)
-        print(f"Response status code: {response.status_code}")
+        logger.info(f"Response status code: {response.status_code}")
 
         secret = json.loads(response.text)["SecretString"]
         secret = json.loads(secret)
@@ -75,7 +77,7 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logger.error(f"Error: {str(e)}")
         return {
             "statusCode": 500,
             "body": json.dumps({"message": "Error!", "error": str(e)}),
