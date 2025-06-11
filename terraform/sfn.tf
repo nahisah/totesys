@@ -84,4 +84,3 @@ resource "aws_sfn_state_machine" "totesys_state_machine" {
 }
 EOF
 }
-

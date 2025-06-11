@@ -114,14 +114,11 @@ class TestTransformTables:
         "transform_fact_sales_order returns a dataframe with columns as specified in the warehouse design"
     )
     def test_fact_sales_order(self):
-        # arrange
         with open("data/test_data/sales_order-20250604T102926Z.json", "r") as file:
             data_sales_order = json.load(file)
 
-        # act
         actual = transform_fact_sales_order(data_sales_order)
 
-        # assert
         assert isinstance(actual, pd.DataFrame)
 
         assert actual.columns.tolist() == [
@@ -146,14 +143,11 @@ class TestTransformTables:
         "transform_fact_sales_order splits the datestamped columns into the right formats"
     )
     def test_datetime_split(self):
-        # arrange
         with open("data/test_data/sales_order-20250604T102926Z.json", "r") as file:
             data_sales_order = json.load(file)
 
-        # act
         actual = transform_fact_sales_order(data_sales_order)
 
-        # assert
         assert isinstance(actual["created_date"][0], datetime.date)
         assert isinstance(actual["last_updated_date"][0], datetime.date)
         assert isinstance(actual["agreed_payment_date"][0], datetime.date)
@@ -166,10 +160,8 @@ class TestTransformTables:
         with open("data/test_data/design-20250605T134756Z.json", "r") as file:
             data = json.load(file)
 
-        # act
         actual = transform_dim_design(data)
 
-        # assert
         assert isinstance(actual, pd.DataFrame)
 
         assert actual.columns.tolist() == [
@@ -186,10 +178,8 @@ class TestTransformTables:
         with open("data/test_data/currency-20250605T134850Z.json", "r") as file:
             data = json.load(file)
 
-        # act
         actual = transform_dim_currency(data)
 
-        # assert
         assert isinstance(actual, pd.DataFrame)
         assert actual.columns.tolist() == [
             "currency_id",
@@ -204,10 +194,8 @@ class TestTransformTables:
         with open("data/test_data/address-20250605T134757Z.json", "r") as file:
             data = json.load(file)
 
-        # act
         actual = transform_dim_location(data)
 
-        # assert
         assert isinstance(actual, pd.DataFrame)
         assert actual.columns.tolist() == [
             "location_id",

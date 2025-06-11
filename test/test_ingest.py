@@ -16,7 +16,6 @@ from utils.db_connection import close_conn, create_conn
 from utils.normalise_datetime import normalise_datetimes
 
 
-# fixture for connecting to database
 @pytest.fixture(scope="module")
 def db():
     """Create a database connection and closes it at the end"""
@@ -24,12 +23,17 @@ def db():
     yield db
     close_conn(db)
 
+@pytest.fixture(scope="module")
+def mock_client():
+    with mock_aws():
+        client = boto3.client("s3")
+        yield client
+
 
 @pytest.mark.it(
-    "extract_data gives us all the information in a given table in list of dictionaries format"
+    "extract_data returns all the information in a given table in list of dictionaries format"
 )
 def test_extract_data_full_table(db):
-    # arrange
     table_name = "currency"
     expected = [
         {
@@ -45,28 +49,21 @@ def test_extract_data_full_table(db):
             "last_updated": "2022-11-03 14:20:49.962",
         },
     ]
-    # act
     actual = normalise_datetimes(extract_data(table_name))
-    # assert
     assert actual == expected
 
 
 @pytest.mark.it(
-    "extract_data gives us an informative error message in the event of failure"
+    "extract_data raises a RuntimeErroer in the event of failure"
 )
-def test_informative_error_message():
-    # arrange
+def test_extract_data_error():
     table_name = "restaurants"
-    # act
-
-    # assert
     with pytest.raises(RuntimeError):
         extract_data(table_name)
 
 
 @pytest.mark.it("convert_to_json converts a list of dictionaries into a .json file")
 def test_converts_to_json():
-    # arrange
     input_data = [
         {
             "currency_id": 2,
@@ -82,7 +79,6 @@ def test_converts_to_json():
         },
     ]
 
-    # act
     converted = convert_to_json(input_data)
 
     def is_it_json(input):
@@ -95,17 +91,8 @@ def test_converts_to_json():
     assert is_it_json(converted)
 
 
-# fixture mocking an s3 client with s3 bucket in it
-@pytest.fixture(scope="module")
-def mock_client():
-    with mock_aws():
-        client = boto3.client("s3")
-        yield client
-
-
 @pytest.mark.it("upload_to_s3 uploads json to s3 with a correct key")
 def test_correct_upload(mock_client):
-    # arrange
     bucket_name = "mock_bucket"
     mock_client.create_bucket(
         Bucket=bucket_name,
@@ -136,10 +123,8 @@ def test_correct_upload(mock_client):
     expected_key_2 = f"{table_name}/{date_path}/{table_name}-{timestamp_2}.json"
     expected_key_3 = f"{table_name}/{date_path}/{table_name}-{timestamp_3}.json"
 
-    # act
     upload_response = upload_to_s3(input_json, bucket_name, table_name)
 
-    # assert
     response = mock_client.list_objects(Bucket=bucket_name)
 
     actual_key = response["Contents"][0]["Key"]
@@ -158,10 +143,9 @@ def test_correct_upload(mock_client):
 
 
 @pytest.mark.it(
-    "upload_to_s3 gives us an informative error message in the event of failure"
+    "upload_to_s3 raises a RuntimeError in the event of failure"
 )
-def test_informative_error_message_upload(mock_client):
-    # arrange
+def test_upload_to_s3_error():
     bucket_name = "mock_bucket_2"
     input_data = [
         {
@@ -179,10 +163,7 @@ def test_informative_error_message_upload(mock_client):
     ]
     input_json = json.dumps(input_data)
     table_name = "currency"
-
-    # act
-
-    # assert
+    
     with pytest.raises(RuntimeError):
         upload_to_s3(input_json, bucket_name, table_name)
 
@@ -191,7 +172,6 @@ def test_informative_error_message_upload(mock_client):
     "the ingest function extracts the data from the currency table, which contains datetime objects, changes them to json and saves in the given bucket"
 )
 def test_ingestion_works(mock_client):
-    # arrange
     table_name = "currency"
     bucket_name = "mock_bucket_3"
     mock_client.create_bucket(
@@ -207,10 +187,8 @@ def test_ingestion_works(mock_client):
     expected_key_2 = f"{table_name}/{date_path}/{table_name}-{timestamp_2}.json"
     expected_key_3 = f"{table_name}/{date_path}/{table_name}-{timestamp_3}.json"
 
-    # act
     ingest(table_name, bucket_name)
 
-    # assert
     response = mock_client.list_objects(Bucket=bucket_name)
 
     actual_key = response["Contents"][0]["Key"]
@@ -226,7 +204,6 @@ def test_ingestion_works(mock_client):
     "the ingest function extracts the data from the sales_order table, which contains decimal objects, changes them to json and saves in the given bucket"
 )
 def test_sales_order_ingestion(mock_client):
-    # arrange
     table_name = "sales_order"
     bucket_name = "mock_bucket_3"
     now = datetime.datetime.now(timezone.utc)
@@ -238,10 +215,8 @@ def test_sales_order_ingestion(mock_client):
     expected_key_2 = f"{table_name}/{date_path}/{table_name}-{timestamp_2}.json"
     expected_key_3 = f"{table_name}/{date_path}/{table_name}-{timestamp_3}.json"
 
-    # act
     ingest(table_name, bucket_name)
 
-    # assert
     response = mock_client.list_objects(Bucket=bucket_name)
     actual_key = response["Contents"][1]["Key"]
     assert (

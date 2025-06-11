@@ -13,7 +13,6 @@ output "load_lambda_function_name" {
   value       = length(aws_lambda_function.load_lambda) > 0 ? aws_lambda_function.load_lambda[0].function_name : ""
 }
 
-
 output "code_bucket_name" {
-value = aws_s3_bucket.code-bucket.bucket
+  value = aws_s3_bucket.code-bucket.bucket
 }

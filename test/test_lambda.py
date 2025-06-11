@@ -104,7 +104,9 @@ def test_all_data_successfully_put_inside_bucket(mock_request, client, step_clie
 
 
 @patch("src.ingestion.ingest_lambda.requests")
-def test_status_code_500_for_wrong_request(mock_request, client, step_client):
+
+
+def test_status_code_500_for_wrong_request(mock_request, step_client):
     step_client.create_state_machine(
         name="step-machine",
         definition="{}",
