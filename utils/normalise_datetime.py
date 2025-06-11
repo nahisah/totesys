@@ -1,15 +1,16 @@
 from datetime import datetime
 
+
 def normalise_datetimes(rows):
     """
-    Iterates through a list of dictionaries and converts datetime objects to string 
-    in the format 'YYYY-MM-DD HH:MM:SS.sss' so they can be compared with expected string values. 
+    Iterates through a list of dictionaries and converts datetime objects to string
+    in the format 'YYYY-MM-DD HH:MM:SS.sss' so they can be compared with expected string values.
 
     Arguments:
-        rows: A list of dictionaries; Each dictionary represents a data record 
+        rows: A list of dictionaries; Each dictionary represents a data record
 
-    Return: 
-        List of dictionaries where the datetime values are formatted as strings. 
+    Return:
+        List of dictionaries where the datetime values are formatted as strings.
 
     """
     for row in rows:
