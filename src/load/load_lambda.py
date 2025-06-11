@@ -69,8 +69,9 @@ def lambda_handler(event, context):
             df = accessing_files_from_processed_bucket(
                 table_name, os.environ["TRANSFORM_BUCKET_NAME"]
             )
+            logger.info(f"Extracted data from processed bucket for table {table_name}.")
             table_names[table_name](df)
-        logger.info("Extracted data from processed bucket in correct file format")
+            logger.info(f"Loaded {table_name} to the warehouse.")
         
         return {
             "statusCode": 200,
