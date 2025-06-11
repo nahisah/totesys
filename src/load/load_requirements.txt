@@ -1,1 +1,3 @@
 requests
+dotenv
+pg8000
