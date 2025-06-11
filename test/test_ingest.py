@@ -6,7 +6,7 @@ import boto3
 import pytest
 from moto import mock_aws
 
-from src.ingestion.ingest import convert_to_json, extract_data, ingest, upload_to_s3
+from src.ingestion.ingest_utils import convert_to_json, extract_data, ingest, upload_to_s3
 from utils.db_connection import close_conn, create_conn
 from utils.normalise_datetime import normalise_datetimes
 

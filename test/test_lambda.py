@@ -7,7 +7,7 @@ import dotenv
 import pytest
 from moto import mock_aws
 
-from src.ingestion.lambda_for_secrets import lambda_handler
+from src.ingestion.ingest_lambda import lambda_handler
 
 
 @pytest.fixture(autouse=True)
@@ -39,8 +39,9 @@ def step_client(test_mock_credentials):
         yield boto3.client("stepfunctions", region_name="eu-west-2")
 
 
-@patch("src.ingestion.lambda_for_secrets.requests")
-def test_successful_request_returns_status_code_200(mock_request, client, step_client):
+@patch("src.ingestion.ingest_lambda.requests")
+
+def test_successful_request_returns_status_code_200(mock_request,client,step_client):
     step_client.create_state_machine(
         name="step-machine",
         definition="{}",
@@ -68,8 +69,9 @@ def test_successful_request_returns_status_code_200(mock_request, client, step_c
     assert lambda_handler({}, {}) == {"statusCode": 200}
 
 
-@patch("src.ingestion.lambda_for_secrets.requests")
-def test_all_data_successfully_put_inside_bucket(mock_request, client, step_client):
+@patch("src.ingestion.ingest_lambda.requests")
+
+def test_all_data_successfully_put_inside_bucket(mock_request,client,step_client):
     step_client.create_state_machine(
         name="step-machine",
         definition="{}",
@@ -100,8 +102,9 @@ def test_all_data_successfully_put_inside_bucket(mock_request, client, step_clie
     assert len(contents["Contents"]) == 7  # Number should match amount of table names
 
 
-@patch("src.ingestion.lambda_for_secrets.requests")
-def test_status_code_500_for_wrong_request(mock_request, client, step_client):
+@patch("src.ingestion.ingest_lambda.requests")
+
+def test_status_code_500_for_wrong_request(mock_request,client,step_client):
     step_client.create_state_machine(
         name="step-machine",
         definition="{}",
