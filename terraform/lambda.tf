@@ -8,7 +8,7 @@ resource "aws_lambda_function" "ingestion_lambda" {
   handler   = "lambda_for_secrets.lambda_handler"
   layers    = ["arn:aws:lambda:eu-west-2:133256977650:layer:AWS-Parameters-and-Secrets-Lambda-Extension:17"]
   timeout   = 30
-  runtime   = "python3.9"
+  runtime   = "python3.13"
 
   environment {
     variables = {

@@ -216,4 +216,3 @@ def load_fact_sales_order_into_warehouse(df):
 
         finally:
             close_conn(conn)
-

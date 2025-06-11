@@ -13,7 +13,6 @@ from src.load.load_utils import (
     load_fact_sales_order_into_warehouse,
     accessing_files_from_processed_bucket,
 )
-import boto3
 
 
 def lambda_handler(event, context):
