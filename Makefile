@@ -21,10 +21,10 @@ security-check:
 	source venv/bin/activate && bandit -lll */*.py *c/*.py && pip-audit
 
 unit-test-initial:
-	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/initial_tests.txt --cov --testdox
+	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/initial_tests.txt --cov=src --testdox
 
 unit-test-load:
-	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/load_tests.txt --cov --testdox
+	source venv/bin/activate && PYTHONPATH=$(PYTHONPATH) pytest @test/load_tests.txt --cov=src --testdox
 
 format-code:
 	source venv/bin/activate && isort test/ src/ utils/ --profile black && black test/ src/ utils/

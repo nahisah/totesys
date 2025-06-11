@@ -129,17 +129,17 @@ jobs:
         pip install -r src/transform/transform_requirements.txt -t lambda/transform/
         pip install -r src/load/load_requirements.txt -t lambda/load/
     
-    - name: Copying source code and utils into lambda folder
+    - name: Copying source code into lambda folder
       run: |
             cp -r src/ingestion/* lambda/ingestion/src/ingestion/
             cp -r src/ingestion/* lambda/ingestion/
-            cp -r utils lambda/ingestion/
+            cp -r src/utils lambda/ingestion/
             cp -r src/transform/* lambda/transform/src/transform
             cp -r src/transform/* lambda/transform/
-            cp -r utils lambda/transform/
+            cp -r src/utils lambda/transform/
             cp -r src/load/* lambda/load/src/load
             cp -r src/load/* lambda/load/
-            cp -r utils lambda/load/
+            cp -r src/utils lambda/load/
 
     - name: Zip up lambda package
       run: |
