@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 from src.transform.transform_utils import (
@@ -23,8 +24,14 @@ def lambda_handler(event, context):
         A message with status code 500 on an unsuccessful attempt.
 
     """
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
     try:
+        
         ingested_data = get_all_table_data_from_ingest_bucket()
+        logger.info("Extracted data from ingestion bucket.")
 
         fact_sales_order = transform_fact_sales_order(ingested_data["sales_order"])
         dim_design = transform_dim_design(ingested_data["design"])
@@ -37,6 +44,7 @@ def lambda_handler(event, context):
         dim_counterparty = transform_dim_counterparty(
             ingested_data["counterparty"], ingested_data["address"]
         )
+        logger.info("Transformation of ingested data complete.")
 
         table_names = {
             "fact_sales_order": fact_sales_order,
@@ -50,6 +58,8 @@ def lambda_handler(event, context):
 
         for k, v in table_names.items():
             upload_to_s3(v, os.environ["TRANSFORM_BUCKET_NAME"], k)
+            logger.info(f"Uploaded transformed data to S3 for table {k}.")
+            
 
         return {
             "statusCode": 200,
@@ -57,7 +67,7 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logger.error(f"Error: {str(e)}")
         return {
             "statusCode": 500,
             "body": json.dumps({"message": "Error!", "error": str(e)}),

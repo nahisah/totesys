@@ -1,6 +1,6 @@
 import json
 import os
-
+import logging
 import requests
 
 from src.load.load_utils import (
@@ -23,6 +23,8 @@ def lambda_handler(event, context):
         A message with status code 200 on successful loading into the warehouse.
         A message with status code 500 on unsuccessful loading of the data.
     """
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
     try:
         secret_name = (
@@ -37,7 +39,7 @@ def lambda_handler(event, context):
         }
 
         response = requests.get(secrets_extension_endpoint, headers=headers)
-        print(f"Response status code: {response.status_code}")
+        logger.info(f"Response status code: {response.status_code}")
 
         secret = json.loads(response.text)["SecretString"]
         secret = json.loads(secret)
@@ -64,15 +66,17 @@ def lambda_handler(event, context):
             df = access_files_from_processed_bucket(
                 table_name, os.environ["TRANSFORM_BUCKET_NAME"]
             )
+            logger.info(f"Extracted data from processed bucket for table {table_name}.")
             table_names[table_name](df)
-
+            logger.info(f"Loaded {table_name} to the warehouse.")
+        
         return {
             "statusCode": 200,
             "body": json.dumps({"message": "Data successfully loaded"}),
         }
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logger.error(f"Error: {str(e)}")
         return {
             "statusCode": 500,
             "body": json.dumps({"message": "Error!", "error": str(e)}),
