@@ -1,3 +1,7 @@
+"""
+Contains the utility functions for opening and closing connections to a Postgres database.
+"""
+
 import os
 
 import dotenv

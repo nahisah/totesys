@@ -1,3 +1,7 @@
+"""
+Contains the utility function that handles conversion of Python objects to JSON-compatible types.
+"""
+
 from datetime import datetime
 from decimal import Decimal
 

@@ -1,3 +1,7 @@
+"""
+Contains the utility functions for the load lambda_handler.
+"""
+
 import awswrangler as wr
 import boto3
 
