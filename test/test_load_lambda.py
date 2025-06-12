@@ -10,7 +10,7 @@ import pytest
 from moto import mock_aws
 
 from src.load.load_lambda import lambda_handler
-from utils.db_connection import close_conn, create_conn
+from src.utils.db_connection import close_conn, create_conn
 
 
 @pytest.fixture(autouse=True)

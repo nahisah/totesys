@@ -12,8 +12,8 @@ from src.ingestion.ingest_utils import (
     ingest,
     upload_to_s3,
 )
-from utils.db_connection import close_conn, create_conn
-from utils.normalise_datetime import normalise_datetimes
+from src.utils.db_connection import close_conn, create_conn
+from src.utils.normalise_datetime import normalise_datetimes
 
 
 @pytest.fixture(scope="module")

@@ -17,7 +17,7 @@ from src.load.load_utils import (
     load_dim_staff_into_warehouse,
     load_fact_sales_order_into_warehouse,
 )
-from utils.db_connection import close_conn, create_conn
+from src.utils.db_connection import close_conn, create_conn
 
 
 @pytest.fixture(autouse=True)

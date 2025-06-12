@@ -5,9 +5,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from utils.db_connection import create_conn
-from utils.default_serialiser import default_serialiser
-from utils.normalise_datetime import normalise_datetimes
+from src.utils.db_connection import create_conn
+from src.utils.default_serialiser import default_serialiser
+from src.utils.normalise_datetime import normalise_datetimes
 
 
 class TestDefaultSerialiser:
@@ -58,7 +58,7 @@ class TestDBConnection:
             "HOST": "localhost",
         },
     )
-    @patch("utils.db_connection.Connection")
+    @patch("src.utils.db_connection.Connection")
     def test_create_conn(self, mock_connection):
         mock_conn_first = Mock()
         mock_connection.return_value = mock_conn_first

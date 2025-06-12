@@ -30,17 +30,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes postgresql-client
   
-      - name: Setup test database
-        run: psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
-        env: 
-          PGPASSWORD: postgres
-      
-      - name: Setup test warehouse
-        run: psql -f data/test_warehouse_db.sql -p 5432 -h localhost -U postgres
+      - name: Setup test database and warehouse
+        run: |
+          psql -f data/seed_mock_db.sql -p 5432 -h localhost -U postgres
+          psql -f data/seed_mock_warehouse.sql -p 5432 -h localhost -U postgres
         env: 
           PGPASSWORD: postgres
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -129,17 +126,17 @@ jobs:
         pip install -r src/transform/transform_requirements.txt -t lambda/transform/
         pip install -r src/load/load_requirements.txt -t lambda/load/
     
-    - name: Copying source code and utils into lambda folder
+    - name: Copying source code into lambda folder
       run: |
             cp -r src/ingestion/* lambda/ingestion/src/ingestion/
             cp -r src/ingestion/* lambda/ingestion/
-            cp -r utils lambda/ingestion/
+            cp -r src/utils lambda/ingestion/src/utils
             cp -r src/transform/* lambda/transform/src/transform
             cp -r src/transform/* lambda/transform/
-            cp -r utils lambda/transform/
+            cp -r src/utils lambda/transform/src/utils
             cp -r src/load/* lambda/load/src/load
             cp -r src/load/* lambda/load/
-            cp -r utils lambda/load/
+            cp -r src/utils lambda/load/src/utils
 
     - name: Zip up lambda package
       run: |

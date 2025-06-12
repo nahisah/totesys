@@ -1,7 +1,11 @@
+"""
+Contains the utility functions for the load lambda_handler.
+"""
+
 import awswrangler as wr
 import boto3
 
-from utils.db_connection import close_conn, create_conn
+from src.utils.db_connection import close_conn, create_conn
 
 
 def access_files_from_processed_bucket(table_name, bucket_name):
