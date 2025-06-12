@@ -1,3 +1,7 @@
+"""
+Contains the utility functions for the ingestion lambda_handler.
+"""
+
 import datetime
 import json
 from datetime import timezone

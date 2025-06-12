@@ -1,3 +1,7 @@
+"""
+Contains the main function used by the Load Lambda AWS resource.
+"""
+
 import json
 import os
 import logging

@@ -1,3 +1,7 @@
+"""
+Contains the main function used by the Transform Lambda AWS resource.
+"""
+
 import json
 import logging
 import os
