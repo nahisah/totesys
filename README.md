@@ -1,4 +1,4 @@
-Totesys - Data Engineering Pipeline Project
+# Totesys - Data Engineering Pipeline Project
 
 
 This project creates an automated data pipeline to extract, transform and load data from a database into a data warehouse using infrastructure-as-code. This is set up to run every minute.
