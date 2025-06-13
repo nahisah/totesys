@@ -171,7 +171,7 @@ Upon doing this and applying the changes, you will receive three e-mails to conf
 
 The original database called `totesys` simulates the back-end data of a commercial application and has 11 tables, out of which we use 7 to complete the MVP.
 
-![alt text](image.png)
+![alt text](./visualisations/db_schema.png)
 
 The tables that we use from `totesys` are:
 |tablename|
@@ -197,7 +197,7 @@ We then transform the data to populate the following tables in the data warehous
 
 The resulting data warehouse has the following structure: 
 
-![alt text](image-1.png)
+![alt text](./visualisations/warehouse_schema.png)
 
 
 ### Data insights
