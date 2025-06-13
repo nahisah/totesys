@@ -120,3 +120,58 @@ A successful check sets up the pipeline to run every minute. You can see CloudWa
 In order to receive e-mail notifications for Lambda alarms caused by errors in the pipeline, you will need to go to `terraform/scheduler.tf` and change `protocol` in `resource "aws_sns_topic_subscription" "load_email_alert"` to include your e-mail instead. You need to do this in 3 places.
 
 Upon doing this and applying the changes, you will receive three e-mails to confirm your SNS subscriptions. Once confirmed, you will be notified any time a problem occurs and can diagnose the problem using AWS CloudWatch log streams.
+
+
+## Data
+
+The original database called `totesys` simulates the back-end data of a commercial application and has 11 tables, out of which we use 7 to complete the MVP.
+
+![alt text](image.png)
+
+The tables that we use from `totesys` are:
+|tablename|
+|----------|
+|counterparty|
+|currency|
+|department|
+|design|
+|staff|
+|sales_order|
+|address|
+
+We then transform the data to populate the following tables in the data warehouse: 
+|tablename|
+|---------|
+|fact_sales_order|
+|dim_staff|
+|dim_location|
+|dim_design|
+|dim_date|
+|dim_currency|
+|dim_counterparty|
+
+The resulting data warehouse has the following structure: 
+
+![alt text](image-1.png)
+
+
+### Data insights
+
+We prepared various visualisations of data using Tableau software. These can be found in the `visualisations` folder.
+
+Note that the data was artificially generated and therefore offers limited insights.
+
+## Contributing
+
+If you'd like to contribute to expanding this project, please fork the repo, work on your changes and then make a pull request.
+
+## Authors
+
+Callum, Cristine, Marc, Marta, Nahisah, Taimoor
+
+## Acknowledgements
+
+This project was created as a part of the Northcoders Data Engineering Bootcamp.
+
+https://www.northcoders.com/
+
