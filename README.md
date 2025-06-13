@@ -54,7 +54,7 @@ This project is intended to run on Linux.
 Start with forking the repository on GitHub and cloning it to your local machine. To do this, make a separate directory on your machine and input the following command:
 
 ```bash
-  git clone <forked repository link>
+git clone <forked repository link>
 ```
  Once cloned, move into your cloned repository:
  ```bash
