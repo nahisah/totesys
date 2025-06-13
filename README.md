@@ -120,7 +120,7 @@ make unit-test-load
 ```
 
 ### AWS Infrastructure
-In order to deploy terraform infrastructure without having to trigger the workflow, you will need to follow these steps:
+In order to deploy terraform infrastructure, you will need to follow these steps:
 
 Move into your terraform directory
 ```bash
