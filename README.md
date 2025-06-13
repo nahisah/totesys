@@ -15,6 +15,8 @@ Completion of this step triggers our AWS Step Function to run the Transformation
 Finally, in the Load step, we take data from our second S3 bucket and load it into our data warehouse, ready to be used in data visualisation.
 This entire process is set up to run in a CI/CD pipeline, and AWS CloudWatch is used throughout to monitor our pipeline and send email alerts if the pipeline breaks.
 
+Documentation for our functions [can be found here](https://nahisah.github.io/totesys/), courtesy of pdoc.
+
 ## Technologies used
 
 Python  
