@@ -3,6 +3,51 @@ Totesys - Data Engineering Pipeline Project
 
 This project creates an automated data pipeline to extract, transform and load data from a database into a data warehouse using infrastructure-as-code. This is set up to run every minute.
 
+## Features
+
+![Pipeline](./visualisations/AWS-diagram.png)
+
+
+In the extraction step, we have an AWS Lambda that extracts data from a Postgres database every minute, and stores it in our S3 ingestion bucket.
+
+Completion of this step triggers our AWS Step Function to run the Transformation step, where an AWS Lambda takes data from the S3 bucket and transforms it into a format suitable for our data warehouse. This is stored into a second S3 bucket.
+
+Finally, in the Load step, we take data from our second S3 bucket and load it into our data warehouse, ready to be used in data visualisation.
+This entire process is set up to run in a CI/CD pipeline, and AWS CloudWatch is used throughout to monitor our pipeline and send email alerts if the pipeline breaks.
+
+## Technologies used
+
+Python  
+- Boto3 
+- pandas
+- moto
+- pg8000
+- pytest
+- requests
+- awswrangler
+- dotenv
+- currency_codes
+
+AWS services 
+- Lambda
+- Step Functions
+- CloudWatch
+- SNS
+- IAM
+- S3
+- SecretsManager
+- RDS
+
+Terraform
+
+SQL
+
+Postgres
+
+GitHub Actions
+
+Make
+
 ## Installation and setup
 This project is intended to run on Linux.
 
@@ -26,7 +71,7 @@ make run-setup
 ### Setting up AWS credentials
 This part requires going into the project files and changing a bit of code as this project was originally working off a single AWS account shared between contributors. 
 
-To be able to set this project up to work on your AWS Console, you will need to setup AWS Secrets Manager <insert link here> with your database and warehouse credentials. The secrets you store should be in the following format:
+To be able to set this project up to work on your AWS Console, you will need to setup [AWS Secrets Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html) with your database and warehouse credentials. The secrets you store should be in the following format:
 ```bash 
 user: <username>
 password: <password>
@@ -44,13 +89,13 @@ In `src/load/load_lambda.py/lambda_handler`:
 ```bash
 secret_name = "arn:aws:secretsmanager:<your-region>:<your-aws-account-id>:secret:<your-secret-name>-<some-digits>" 
 ```
-Once this has been done you can set your AWS credentials <link here> onto your local machine:
+Once this has been done you can set your [AWS credentials](https://docs.aws.amazon.com/cli/v1/userguide/cli-chap-configure.html) onto your local machine:
 ```bash
 aws configure
 ```
 
 ### Postgres
-If not already set up, you will need to setup Postgres on your machine. A guide to doing this can be found here <insert link>.
+If not already set up, you will need to setup Postgres on your machine. A guide to doing this on Ubuntu can be found [here](https://documentation.ubuntu.com/server/how-to/databases/install-postgresql/index.html).
 
 ### Testing
 While testing happens automatically on push to github, if you wish to test files locally you will need to set up a .env file:
@@ -120,3 +165,4 @@ A successful check sets up the pipeline to run every minute. You can see CloudWa
 In order to receive e-mail notifications for Lambda alarms caused by errors in the pipeline, you will need to go to `terraform/scheduler.tf` and change `protocol` in `resource "aws_sns_topic_subscription" "load_email_alert"` to include your e-mail instead. You need to do this in 3 places.
 
 Upon doing this and applying the changes, you will receive three e-mails to confirm your SNS subscriptions. Once confirmed, you will be notified any time a problem occurs and can diagnose the problem using AWS CloudWatch log streams.
+
